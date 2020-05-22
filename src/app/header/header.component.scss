@@ -1,0 +1,43 @@
+$lt-gray: #ddd;
+$background-dark: #424242;
+$background-light: #616161;
+$background-pale: #9E9E9E;
+$background-moredark: #212121;
+
+
+@mixin zero-margin($pad-up-down, $pad-left-right) {
+    margin: 0px auto;
+    padding: $pad-up-down $pad-left-right;
+}
+
+.jumbotron {
+    @include zero-margin(70px,30px);
+    background: $background-light ;
+    color:floralwhite;
+    min-height: 150px;
+}
+
+.active {
+    background: $background-moredark;
+}
+
+div {
+    overflow: inherit;
+}
+
+.mat-button {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 22px;
+    text-transform: uppercase;
+    padding: 21px 16px 21px 16px;
+}
+
+#title {
+    padding: 15px;
+    margin-left: -15px;
+}
+
+#horizMenu {
+    height: 100%;
+}

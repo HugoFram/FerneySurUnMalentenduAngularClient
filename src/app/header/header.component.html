@@ -1,0 +1,39 @@
+<mat-toolbar color = "primary">
+  <div fxShow="true" fxHide.gt-md="true">
+    <button mat-icon-button [matMenuTriggerFor]="vertMenu">
+      <mat-icon>menu</mat-icon>
+    </button>
+  </div>
+  <span id = "title">Ferney Sur Un Malentendu</span>
+
+  <div fxShow="true" fxHide.lt-lg="true" id = "horizMenu">
+    <a mat-button routerLink = '/next-match' routerLinkActive = 'active'><span class="fas fa-volleyball-ball fa-fw"></span> Prochain Match</a>
+    <a mat-button routerLink = '/calendar' routerLinkActive = 'active'><span class="fa fa-calendar fa-fw"></span> Calendrier</a>
+    <a mat-button routerLink = '/results' routerLinkActive = 'active'><span class="fas fa-chart-line fa-fw"></span> Résultats</a>
+    <a mat-button routerLink = '/ranking' routerLinkActive = 'active'><span class="fa fa-trophy fa-fw"></span> Classement</a>
+    <a mat-button [matMenuTriggerFor]="presenceMenu"><span class="fa fa-user fa-fw"></span> Présence</a>
+    <mat-menu #presenceMenu = "matMenu" [overlapTrigger]="false">
+      <a mat-menu-item routerLink = '/presence-training' routerLinkActive = 'active'>Entraînement</a>
+      <a mat-menu-item routerLink = '/presence-match' routerLinkActive = 'active'>Match</a>
+    </mat-menu>
+    <a mat-button routerLink = '/team' routerLinkActive = 'active'><span class="fa fa-address-book fa-fw"></span> Equipe</a>
+  </div>
+
+  <div fxLayout="column" fxShow="true" fxHide.gt-md="true">
+    <mat-menu #vertMenu = "matMenu" [overlapTrigger]="false">
+      <a mat-menu-item routerLink = '/next-match' routerLinkActive = 'active'><span class="fas fa-volleyball-ball fa-fw"></span> Prochain Match</a>
+      <a mat-menu-item routerLink = '/calendar' routerLinkActive = 'active'><span class="fa fa-calendar fa-fw"></span> Calendrier</a>
+      <a mat-menu-item routerLink = '/results' routerLinkActive = 'active'><span class="fas fa-chart-line fa-fw"></span> Résultats</a>
+      <a mat-menu-item routerLink = '/ranking' routerLinkActive = 'active'><span class="fa fa-trophy fa-fw"></span> Classement</a>
+      <a mat-menu-item [matMenuTriggerFor]="presenceMenuVert"><span class="fa fa-user fa-fw"></span> Présence</a>
+      <mat-menu #presenceMenuVert = "matMenu" xPosition = "after" [overlapTrigger]="false">
+        <a mat-menu-item routerLink = '/presence-training' routerLinkActive = 'active'>Entraînement</a>
+        <a mat-menu-item routerLink = '/presence-match' routerLinkActive = 'active'>Match</a>
+      </mat-menu>
+      <a mat-menu-item routerLink = '/team' routerLinkActive = 'active'><span class="fa fa-address-book fa-fw"></span> Equipe</a>
+    </mat-menu>
+  </div>
+
+  <span class = "flex-spacer"></span>
+  <a mat-button (click)="openLoginForm()"><span class = "fa fa-sign-in la-lg"></span> Login</a>
+</mat-toolbar>
