@@ -78,3 +78,28 @@ $candy-app-theme: mat-dark-theme($candy-app-primary, $candy-app-accent, $candy-a
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
 @include angular-material-theme($candy-app-theme);
+
+.mat-tab-label {
+  color: #495057;
+}
+
+.mat-card {
+  background-color: white;
+  color:  #495057
+}
+
+.mat-card {
+  border-left: 1px solid $lt-gray;
+  border-right: 1px solid $lt-gray;
+  border-bottom: 1px solid $lt-gray;
+  border-top: 1px solid $lt-gray;
+  padding: 10px;
+}
+
+.mat-tab-label {
+  border-left: 1px solid $lt-gray;
+  border-right: 1px solid $lt-gray;
+  border-top: 1px solid $lt-gray;
+  margin-bottom: -1px;
+  padding: 10px;
+}

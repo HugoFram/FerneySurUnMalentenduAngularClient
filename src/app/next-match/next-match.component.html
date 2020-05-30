@@ -1,3 +1,46 @@
-<p>
-  next-match works!
-</p>
+<div class="container"
+    fxLayout="row"
+    fxLayout.sm="column"
+    fxLayout.xs="column"
+    fxLayoutAlign.gt-md="start center"
+    fxLayoutGap="10px" 
+    fxLayoutGap.xs="0">
+
+  <div fxFlex="30">
+    <mat-tab-group mat-align-tabs="start">
+      <mat-tab *ngFor = "let match of nextMatches" [label] = "match.date.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>
+            <h2>{{ match.opponent }}</h2>
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p>
+              <i class="far fa-calendar-alt"> </i>
+              {{ match.date.toLocaleDateString('fr-FR') }}
+              <small class="text-muted"> ({{  match.date.toLocaleDateString('fr-FR', {weekday: 'long'}) }})</small>
+          </p>
+          <p>
+              <i class="far fa-clock"> </i>
+              {{ match.hour }}
+          </p>
+          <p>
+              <i class="fas fa-map-marker-alt"> </i>
+              <a class="address" href = '{{ "https://www.google.com/maps/search/?api=1&amp;query=" + match.place }}'> {{ match.place }}</a>
+          </p>
+          <p>
+              <strong>Adversaire:</strong>
+              {{ match.opponent }}<small class="text-muted"> ({{ match.opponentRank }})</small>
+          </p>
+          <p>
+              <strong>Dernière Rencontre:</strong>
+              {{ match.previousEncounter }}
+          </p>
+          </mat-card-content>
+        </mat-card>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+</div>
