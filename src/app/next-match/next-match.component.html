@@ -7,8 +7,8 @@
     fxLayoutGap.xs="0">
 
   <div fxFlex="30">
-    <mat-tab-group mat-align-tabs="start">
-      <mat-tab *ngFor = "let match of nextMatches" [label] = "match.date.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })">
+    <mat-tab-group mat-align-tabs="start" (selectedTabChange)="onTabChange($event)">
+      <mat-tab *ngFor = "let match of nextMatches" [label] = "match.date.toLocaleDateString('fr-FR', {month: 'long', day: 'numeric'})">
         <mat-card>
           <mat-card-header>
             <mat-card-title>
@@ -18,7 +18,7 @@
           <mat-card-content>
             <p>
               <i class="far fa-calendar-alt"> </i>
-              {{ match.date.toLocaleDateString('fr-FR') }}
+              {{ match.date.toLocaleDateString('fr-FR', {day: 'numeric', month: 'long', year: 'numeric'}) }}
               <small class="text-muted"> ({{  match.date.toLocaleDateString('fr-FR', {weekday: 'long'}) }})</small>
           </p>
           <p>
@@ -41,6 +41,14 @@
         </mat-card>
       </mat-tab>
     </mat-tab-group>
+  </div>
+
+  <div fxFlex = "70">
+    <div class="map-container">
+      <div class="map-frame">
+        <div id="map"></div>
+      </div>
+    </div>
   </div>
 
 </div>

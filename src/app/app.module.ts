@@ -23,6 +23,8 @@ import { PresenceMatchComponent } from './presence-match/presence-match.componen
 import { ResultsComponent } from './results/results.component';
 import { HeaderComponent } from './header/header.component';
 
+import { MapService } from './services/map.service';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -33,7 +35,7 @@ import { HeaderComponent } from './header/header.component';
     PresenceTrainingComponent,
     PresenceMatchComponent,
     ResultsComponent,
-    HeaderComponent
+    HeaderComponent,
   ],
   imports: [
     BrowserModule,
@@ -48,7 +50,9 @@ import { HeaderComponent } from './header/header.component';
     MatTabsModule,
     MatCardModule
   ],
-  providers: [],
+  providers: [
+    MapService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

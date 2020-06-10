@@ -1,7 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Match  } from '../shared/match';
 import { NextMatch  } from '../shared/nextMatch';
 import { MATCHES } from '../shared/matches';
+import { Room } from '../shared/room';
+import { ROOMS } from '../shared/rooms';
+
+import { MapService } from '../services/map.service';
 
 
 @Component({
@@ -9,11 +13,16 @@ import { MATCHES } from '../shared/matches';
   templateUrl: './next-match.component.html',
   styleUrls: ['./next-match.component.scss']
 })
-export class NextMatchComponent implements OnInit {
+export class NextMatchComponent implements OnInit, AfterViewInit {
 
   nextMatches: NextMatch[];
+  rooms: Room[]; ROOMS;
+  selectedRoom: Room;
+  homeTeam: string;
 
-  constructor() { }
+  private map;
+
+  constructor(private mapService: MapService) { }
 
   ngOnInit() {
     this.nextMatches = MATCHES.filter((match) => (match.date > new Date()) && (match.visitor == "Ferney sur un malentendu" || match.home == "Ferney sur un malentendu")).
@@ -29,8 +38,21 @@ export class NextMatchComponent implements OnInit {
           previousEncounter: "Première Rencontre"
       };
       return nextMatch;
-    });
+    }).slice(0,3);
 
+    this.selectedRoom = ROOMS.filter((room) => room.address === this.nextMatches[0].place)[0];
+    this.homeTeam = this.nextMatches[0].homeOrVisitor == "Domicile" ? "Ferney sur un malentendu" : this.nextMatches[0].opponent;
+  }
+
+  ngAfterViewInit(): void {
+    this.map = this.mapService.initMap(this.map, this.selectedRoom.longitude, this.selectedRoom.latitude, this.homeTeam);
+  }
+
+  onTabChange($event) {
+    let match = this.nextMatches[$event.index];
+    this.selectedRoom = ROOMS.filter((room) => room.address === match.place)[0];
+    this.homeTeam = match.homeOrVisitor == "Domicile" ? "Ferney sur un malentendu" : match.opponent;
+    this.map = this.mapService.refreshMap(this.map, this.selectedRoom.longitude, this.selectedRoom.latitude, this.homeTeam);
   }
 
 }
