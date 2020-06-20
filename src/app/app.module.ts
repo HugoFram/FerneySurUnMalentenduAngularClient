@@ -10,6 +10,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
+import { MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { AppComponent } from './app.component';
 import { fromEventPattern } from 'rxjs';
@@ -22,8 +25,13 @@ import { PresenceTrainingComponent } from './presence-training/presence-training
 import { PresenceMatchComponent } from './presence-match/presence-match.component';
 import { ResultsComponent } from './results/results.component';
 import { HeaderComponent } from './header/header.component';
+import { LoginComponent } from './login/login.component';
 
 import { MapService } from './services/map.service';
+import { PlayerService } from './services/player.service';
+import { MatchAvailabilityService } from './services/match-availability.service';
+import { MatchService } from './services/match.service';
+import { RoomService } from './services/room.service';
 
 @NgModule({
   declarations: [
@@ -36,6 +44,7 @@ import { MapService } from './services/map.service';
     PresenceMatchComponent,
     ResultsComponent,
     HeaderComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
@@ -48,11 +57,21 @@ import { MapService } from './services/map.service';
     MatIconModule,
     MatSidenavModule,
     MatTabsModule,
-    MatCardModule
+    MatCardModule,
+    MatTableModule,
+    MatSortModule,
+    MatDialogModule
   ],
   providers: [
-    MapService
+    MapService,
+    PlayerService,
+    MatchAvailabilityService,
+    MatchService,
+    RoomService
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [
+    LoginComponent
+  ]
 })
 export class AppModule { }

@@ -1,4 +1,5 @@
 export class NextMatch {
+    matchNum: string;
     opponent: string;
     date: Date;
     hour: string;
