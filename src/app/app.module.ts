@@ -13,6 +13,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
 import { fromEventPattern } from 'rxjs';
@@ -32,6 +36,7 @@ import { PlayerService } from './services/player.service';
 import { MatchAvailabilityService } from './services/match-availability.service';
 import { MatchService } from './services/match.service';
 import { RoomService } from './services/room.service';
+import { AvailabilityComponent } from './availability/availability.component';
 
 @NgModule({
   declarations: [
@@ -44,7 +49,8 @@ import { RoomService } from './services/room.service';
     PresenceMatchComponent,
     ResultsComponent,
     HeaderComponent,
-    LoginComponent
+    LoginComponent,
+    AvailabilityComponent
   ],
   imports: [
     BrowserModule,
@@ -60,7 +66,11 @@ import { RoomService } from './services/room.service';
     MatCardModule,
     MatTableModule,
     MatSortModule,
-    MatDialogModule
+    MatDialogModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    FormsModule,
+    ReactiveFormsModule
   ],
   providers: [
     MapService,
@@ -71,7 +81,8 @@ import { RoomService } from './services/room.service';
   ],
   bootstrap: [AppComponent],
   entryComponents: [
-    LoginComponent
+    LoginComponent,
+    AvailabilityComponent
   ]
 })
 export class AppModule { }

@@ -107,4 +107,26 @@ $candy-app-theme: mat-dark-theme($candy-app-primary, $candy-app-accent, $candy-a
   color: #93c54b;
 }
 
+.mat-dialog-container {
+  .mat-select-value {
+    color: $primary-text-color;
+  }
+  background-color: #FFFFFF;
+  color: $primary-text-color;
+}
+
+.mat-select-content {
+  .mat-option {
+    background-color: #FFFFFF;
+    color: $primary-text-color;
+  }
+  .mat-option:hover:not(.mat-option-disabled) {
+    background-color: #FFFFFFD0;
+  }
+  .mat-option.mat-selected:not(.mat-option-multiple) {
+    background-color: #FFFFFFC0;
+  }
+}
+
+
 @import "~leaflet/dist/leaflet.css";

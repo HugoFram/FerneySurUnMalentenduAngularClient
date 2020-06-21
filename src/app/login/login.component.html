@@ -1,0 +1,21 @@
+<h1 mat-dialog-title>Qui êtes-vous?</h1>
+
+<form [formGroup] = "playerForm" (ngSubmit) = "onSubmit()">
+  <mat-dialog-content>
+    <mat-form-field>
+      <mat-select placeholder = "Nom" formControlName = "playerName" color = "primary">
+        <mat-option value = "-">
+          -
+        </mat-option>
+        <mat-option *ngFor="let player of players" [value]="player.firstname">
+          {{player.firstname}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <span class = "flex-spacer"></span>
+    <button mat-raised-button mat-dialog-close color = "primary">Retour</button>
+    <button mat-raised-button color = "primary" type = "submit" [disabled] = "playerForm.invalid">OK</button>
+  </mat-dialog-actions>
+</form>

@@ -1,6 +1,11 @@
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatSort, MatTableDataSource, Sort } from '@angular/material';
+import { BehaviorSubject } from 'rxjs';
+import { MatDialog, MatDialogRef } from '@angular/material';
+
+import { LoginComponent } from '../login/login.component';
+import { AvailabilityComponent } from '../availability/availability.component';
 
 import { Match  } from '../shared/match';
 import { NextMatch  } from '../shared/nextMatch';
@@ -29,13 +34,13 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
   rooms: Room[];
   matchAvailability: MatchAvailability;
   availabilityTableData: Availability[];
-  data = "Sélectionné";
+  loggedPlayer: string;
 
   @ViewChild(MatSort) sort: MatSort;
 
   private map;
 
-  constructor(private mapService: MapService, private matchAvailabilityService: MatchAvailabilityService, 
+  constructor(private dialog: MatDialog, private mapService: MapService, private matchAvailabilityService: MatchAvailabilityService, 
               private matchService: MatchService, private roomService: RoomService, private playerService: PlayerService) {
     this.matchAvailabilities = this.matchAvailabilityService.getMatchAvailabilities();
     this.matches = this.matchService.getMatches();
@@ -65,9 +70,10 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
     this.homeTeam = this.nextMatches[0].homeOrVisitor == "Domicile" ? "Ferney sur un malentendu" : this.nextMatches[0].opponent;
 
     this.matchAvailability = this.matchAvailabilities.filter((matchAv) => matchAv.matchNum === this.nextMatches[0].matchNum)[0];
-    console.log(this.matchAvailability);
 
     this.availabilityTableData = this.matchAvailability.availabilities.slice();
+
+    this.playerService.getLoggedPlayer().subscribe((player) => this.loggedPlayer = player);
   }
 
   ngAfterViewInit(): void {
@@ -104,6 +110,16 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
+  enterAvailability() {
+    if (this.loggedPlayer == "-") {
+      this.dialog.open(LoginComponent);
+    }
+    else {
+      this.dialog.open(AvailabilityComponent);
+    }
+  }
+
 }
 
 function compare(a, b, isAsc) {

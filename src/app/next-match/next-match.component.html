@@ -51,6 +51,10 @@
     </div>
   </div>
 
+  <div fxFlex = "20" fxFlex.lt-md = "80" fxLayoutAlign = "center">
+    <button mat-raised-button color="primary" (click) = "enterAvailability()">Indiquer Disponibilité</button>
+  </div>
+
   <div fxFlex = "80" fxFlex.sm = "100">
     <table mat-table matSort class="mat-elevation-z8" [dataSource] = "availabilityTableData" (matSortChange)="sortData($event)">
 

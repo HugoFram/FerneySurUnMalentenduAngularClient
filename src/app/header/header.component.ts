@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
 import { LoginComponent } from '../login/login.component';
+import { BehaviorSubject } from 'rxjs';
+
+import { PlayerService } from '../services/player.service';
+import { Player } from '../shared/player';
 
 @Component({
   selector: 'app-header',
@@ -9,13 +13,16 @@ import { LoginComponent } from '../login/login.component';
 })
 export class HeaderComponent implements OnInit {
 
-  constructor(private dialog: MatDialog) { }
+  loggedPlayer: string;
+
+  constructor(private dialog: MatDialog, private playerService: PlayerService) { }
 
   ngOnInit() {
+    this.playerService.getLoggedPlayer().subscribe((player) => this.loggedPlayer = player);
   }
 
   openLoginForm() {
-    this.dialog.open(LoginComponent, {width: '500px', height: '450px'});
+    this.dialog.open(LoginComponent);
   }
 
 }
