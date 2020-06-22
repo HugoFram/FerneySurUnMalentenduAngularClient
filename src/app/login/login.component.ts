@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material';
+import { Component, OnInit, Optional, Inject } from '@angular/core';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { MatSelectModule } from '@angular/material/select';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -18,9 +18,10 @@ export class LoginComponent implements OnInit {
   selectedPlayer: string;
   playerForm: FormGroup
 
-  constructor(public dialogRef: MatDialogRef<LoginComponent>, private playerService: PlayerService, private formBuild: FormBuilder) { 
+  constructor(public dialogRef: MatDialogRef<LoginComponent>, private playerService: PlayerService, private formBuild: FormBuilder, 
+              @Optional() @Inject(MAT_DIALOG_DATA) public data: any) { 
     this.playerForm = this.formBuild.group({
-      playerName: ['-', Validators.minLength(2)]
+      playerName: [data ? data.initialPlayerName : "-", Validators.minLength(2)]
     });
     this.players = this.playerService.getPlayers();
     //this.playerForm.valueChanges.subscribe(data => this.onValueChanged(data));

@@ -36,5 +36,5 @@
 
   <span class = "flex-spacer"></span>
   <a mat-button (click)="openLoginForm()" *ngIf = "loggedPlayer == '-'"><span class = "fa fa-sign-in la-lg"></span> Login</a>
-  <p *ngIf = "loggedPlayer != '-'"><span class = "fa fa-user"></span> {{loggedPlayer}}</p>
+  <a mat-button (click)="openLoginForm()" *ngIf = "loggedPlayer != '-'"><span class = "fa fa-user"></span> {{loggedPlayer}}</a>
 </mat-toolbar>

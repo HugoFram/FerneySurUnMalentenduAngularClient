@@ -12,6 +12,7 @@ import { NextMatch  } from '../shared/nextMatch';
 import { MatchAvailability } from '../shared/matchAvailability';
 import { Availability } from '../shared/availability';
 import { Room } from '../shared/room';
+import { Player } from '../shared/player';
 
 import { MapService } from '../services/map.service';
 import { MatchAvailabilityService } from '../services/match-availability.service';
@@ -100,6 +101,7 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
     this.availabilityTableData = data.sort((a, b) => {
       const isAsc = sort.direction === 'asc';
       switch (sort.active) {
+        case 'id': return compare(a.id, b.id, isAsc);
         case 'playerName': return compare(a.player.firstname, b.player.firstname, isAsc);
         case 'availabilityType': return compare(a.availabilityType, b.availabilityType, isAsc);
         case 'playerRole': return compare(a.player.role, b.player.role, isAsc);
@@ -116,7 +118,42 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
       this.dialog.open(LoginComponent);
     }
     else {
-      this.dialog.open(AvailabilityComponent);
+      let existingAvailabity = this.matchAvailability.availabilities.filter(availability => availability.player.firstname == this.loggedPlayer)[0];
+      let dialogRef;
+      if (existingAvailabity) {
+        dialogRef = this.dialog.open(AvailabilityComponent, {data: { currentAvailability: existingAvailabity.availabilityType } });
+      } else {
+        dialogRef = this.dialog.open(AvailabilityComponent, {data: { currentAvailability: "Disponible" } });
+      }
+  
+      dialogRef.afterClosed().subscribe(result => {
+        let newAvailability: Availability;
+        let existingAvailabity: Availability;
+        let player: Player = this.playerService.getPlayer(this.loggedPlayer);
+        let availabilityId: number;
+
+        player.role = result.data.role;
+        existingAvailabity = this.matchAvailability.availabilities.filter(availability => availability.player.firstname == this.loggedPlayer)[0];
+        console.log(existingAvailabity);
+        if (existingAvailabity) {
+          this.matchAvailability.availabilities = this.matchAvailability.availabilities.filter(availability =>  availability.player.firstname != this.loggedPlayer);
+          availabilityId = existingAvailabity.id;
+        } else {
+          availabilityId = Math.max.apply(Math, this.matchAvailability.availabilities.map(availability => availability.id)) + 1;  
+        }
+
+        newAvailability = {
+          id: availabilityId,
+          player: player,
+          availabilityType: result.data.availability,
+          trainingPresence: "61 % (11/18)",
+          matchPresence: "100 % (9/9)",
+          selection: "Indeterminé"
+        };
+        console.log('Data pushed', newAvailability);
+        this.matchAvailability.availabilities.push(newAvailability);
+        this.availabilityTableData = this.matchAvailability.availabilities.slice();
+      });
     }
   }
 

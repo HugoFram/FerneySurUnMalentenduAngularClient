@@ -128,5 +128,18 @@ $candy-app-theme: mat-dark-theme($candy-app-primary, $candy-app-accent, $candy-a
   }
 }
 
+.mat-form-field {
+  padding: 5px;
+  .mat-form-field-label {
+    color: #495057;
+  }
+  .mat-select-arrow {
+    color: #495057;
+  }
+  .mat-form-field-underline {
+    background-color: #495057;
+  }
+}
+
 
 @import "~leaflet/dist/leaflet.css";

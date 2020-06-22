@@ -22,7 +22,7 @@ export class HeaderComponent implements OnInit {
   }
 
   openLoginForm() {
-    this.dialog.open(LoginComponent);
+    this.dialog.open(LoginComponent, {data: {initialPlayerName: this.loggedPlayer}});
   }
 
 }
