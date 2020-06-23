@@ -3,9 +3,9 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { MatSelectModule } from '@angular/material/select';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-import { Player } from '../shared/player';
+import { Player } from '../../shared/player';
 
-import { PlayerService } from '../services/player.service';
+import { PlayerService } from '../../services/player.service';
 
 @Component({
   selector: 'app-availability',

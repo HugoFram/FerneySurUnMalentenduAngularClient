@@ -1,0 +1,22 @@
+<h1 mat-dialog-title>Qui était présent?</h1>
+
+<form [formGroup] = "trainingForm" (ngSubmit) = "onSubmit()">
+  <mat-dialog-content>
+    <div fxFlex fxLayout = "column" fxLayoutAlign = "start">
+      <mat-form-field>
+        <input matInput [matDatepicker]="myDatepicker" formControlName = "date">
+        <mat-datepicker-toggle matSuffix [for]="myDatepicker"></mat-datepicker-toggle>
+        <mat-datepicker #myDatepicker></mat-datepicker>
+      </mat-form-field>
+      <label formArrayName="presenceList" *ngFor="let order of trainingForm.controls.presenceList.controls; let i = index">
+        <input type="checkbox" [formControlName]="i">
+        {{presences[i]}}
+      </label>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <span class = "flex-spacer"></span>
+    <button mat-raised-button mat-dialog-close color = "primary">Retour</button>
+    <button mat-raised-button color = "primary" type = "submit" [disabled] = "!trainingForm.valid">Valider</button>
+  </mat-dialog-actions>
+</form>

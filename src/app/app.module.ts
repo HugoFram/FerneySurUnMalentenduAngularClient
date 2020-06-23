@@ -17,6 +17,20 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material';
+import { MatInputModule } from '@angular/material';
+import { MAT_DATE_LOCALE } from '@angular/material/core';
+import { registerLocaleData } from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
+registerLocaleData(localeFr);
+
+import { MapService } from './services/map.service';
+import { PlayerService } from './services/player.service';
+import { MatchAvailabilityService } from './services/match-availability.service';
+import { MatchService } from './services/match.service';
+import { RoomService } from './services/room.service';
+import { PresenceService } from './services/presence.service';
 
 import { AppComponent } from './app.component';
 import { fromEventPattern } from 'rxjs';
@@ -29,14 +43,10 @@ import { PresenceTrainingComponent } from './presence-training/presence-training
 import { PresenceMatchComponent } from './presence-match/presence-match.component';
 import { ResultsComponent } from './results/results.component';
 import { HeaderComponent } from './header/header.component';
-import { LoginComponent } from './login/login.component';
-
-import { MapService } from './services/map.service';
-import { PlayerService } from './services/player.service';
-import { MatchAvailabilityService } from './services/match-availability.service';
-import { MatchService } from './services/match.service';
-import { RoomService } from './services/room.service';
-import { AvailabilityComponent } from './availability/availability.component';
+import { LoginComponent } from './modals/login/login.component';
+import { AvailabilityComponent } from './modals/availability/availability.component';
+import { AddTrainingComponent } from './modals/add-training/add-training.component';
+import { DeleteTrainingComponent } from './modals/delete-training/delete-training.component';
 
 @NgModule({
   declarations: [
@@ -50,7 +60,9 @@ import { AvailabilityComponent } from './availability/availability.component';
     ResultsComponent,
     HeaderComponent,
     LoginComponent,
-    AvailabilityComponent
+    AvailabilityComponent,
+    AddTrainingComponent,
+    DeleteTrainingComponent
   ],
   imports: [
     BrowserModule,
@@ -70,19 +82,26 @@ import { AvailabilityComponent } from './availability/availability.component';
     MatFormFieldModule,
     MatSelectModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatInputModule
   ],
   providers: [
     MapService,
     PlayerService,
     MatchAvailabilityService,
     MatchService,
-    RoomService
+    RoomService,
+    PresenceService,
+    {provide: MAT_DATE_LOCALE, useValue: 'fr-FR'}
   ],
   bootstrap: [AppComponent],
   entryComponents: [
     LoginComponent,
-    AvailabilityComponent
+    AvailabilityComponent,
+    AddTrainingComponent,
+    DeleteTrainingComponent
   ]
 })
 export class AppModule { }

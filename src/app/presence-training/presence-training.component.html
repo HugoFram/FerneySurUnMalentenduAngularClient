@@ -1,3 +1,29 @@
-<p>
-  presence-training works!
-</p>
+<div class="container"
+  fxLayout="column"
+  fxLayoutAlign.gt-md="start stretch"
+  fxLayoutGap="10px" 
+  fxLayoutGap.xs="0">
+
+  <table class="mat-elevation-z8 presence-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th *ngFor = "let header of trainingPresences.labels">{{header}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor = "let player of trainingPresences.presences">
+        <td class = "table-player-col">{{player.player}}</td>
+        <td *ngFor = "let presence of player.presenceTypes" [ngClass]="{
+          'is-present': presence === 'Présent',
+          'is-absent': presence === 'Absent'
+        }">{{presence}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div fxFlex fxLayout = "row" fxLayoutAlign = "space-evenly">
+    <button mat-raised-button (click) = "openAddTrainingModal()">Ajouter un Entraînement</button>
+    <button mat-raised-button (click) = "openDeleteTrainingModal()">Retirer un Entraînement</button>
+  </div>
+</div>

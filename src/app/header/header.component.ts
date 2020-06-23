@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
-import { LoginComponent } from '../login/login.component';
+import { LoginComponent } from '../modals/login/login.component';
 import { BehaviorSubject } from 'rxjs';
 
 import { PlayerService } from '../services/player.service';

@@ -4,8 +4,8 @@ import { MatSort, MatTableDataSource, Sort } from '@angular/material';
 import { BehaviorSubject } from 'rxjs';
 import { MatDialog, MatDialogRef } from '@angular/material';
 
-import { LoginComponent } from '../login/login.component';
-import { AvailabilityComponent } from '../availability/availability.component';
+import { LoginComponent } from '../modals/login/login.component';
+import { AvailabilityComponent } from '../modals/availability/availability.component';
 
 import { Match  } from '../shared/match';
 import { NextMatch  } from '../shared/nextMatch';

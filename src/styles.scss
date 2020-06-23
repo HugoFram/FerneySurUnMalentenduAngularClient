@@ -113,6 +113,16 @@ $candy-app-theme: mat-dark-theme($candy-app-primary, $candy-app-accent, $candy-a
   }
   background-color: #FFFFFF;
   color: $primary-text-color;
+
+  .mat-datepicker-toggle {
+    background-color: #FFFFFF;
+    color: $primary-text-color;
+  }
+
+  .mat-input-element {
+    background-color: #FFFFFF;
+    color: $primary-text-color;
+  }
 }
 
 .mat-select-content {
@@ -139,6 +149,9 @@ $candy-app-theme: mat-dark-theme($candy-app-primary, $candy-app-accent, $candy-a
   .mat-form-field-underline {
     background-color: #495057;
   }
+}
+.mat-calendar-body-selected {
+  background-color: #495057;
 }
 
 
