@@ -1,3 +1,30 @@
-<p>
-  presence-match works!
-</p>
+<div class="container"
+  fxLayout="column"
+  fxLayoutAlign.gt-md="start stretch"
+  fxLayoutGap="10px" 
+  fxLayoutGap.xs="0">
+  
+  <table class="mat-elevation-z8 presence-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th *ngFor = "let header of matchPresences.labels" [innerHTML]="header"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor = "let player of matchPresences.presences">
+        <td class = "table-player-col">{{player.player}}</td>
+        <td *ngFor = "let presence of player.presenceTypes" [ngClass]="{
+          'is-present': presence === 'Présent',
+          'is-present-without-playing': presence === 'Présent sans jouer',
+          'is-absent': presence === 'Absent'
+        }">{{presence}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div fxFlex fxLayout = "row" fxLayoutAlign = "space-evenly">
+    <button mat-raised-button (click) = "openAddMatchModal()">Ajouter un Match</button>
+    <button mat-raised-button (click) = "openDeleteMatchModal()">Retirer un Match</button>
+  </div>
+</div>

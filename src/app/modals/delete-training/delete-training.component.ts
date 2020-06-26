@@ -15,7 +15,6 @@ export class DeleteTrainingComponent implements OnInit {
 
   constructor(public dialogRef: MatDialogRef<DeleteTrainingComponent>, private formBuilder: FormBuilder, @Optional() @Inject(MAT_DIALOG_DATA) public data: any) {
     this.trainings = this.data.existingTrainings
-    console.log(this.trainings[this.trainings.length - 1]);
     this.deleteForm = this.formBuilder.group({
       training: this.trainings.length - 1
     });
@@ -24,8 +23,6 @@ export class DeleteTrainingComponent implements OnInit {
   ngOnInit() { }
 
   onSubmit() {
-    console.log(this.deleteForm.value);
-    console.log(this.deleteForm.controls.training.value);
     this.dialogRef.close({data: this.deleteForm.controls.training.value});
   }
 

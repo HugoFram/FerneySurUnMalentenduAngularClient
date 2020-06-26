@@ -53,9 +53,6 @@ export class PresenceTrainingComponent implements OnInit {
       if (result.data) {
         let label = result.data.date.toLocaleDateString() + " (" + result.data.presenceList.reduce((acc, cur) => acc + cur, 0) + ")";
         let index = this.trainingPresences.labels.findIndex(lab => lab.slice(0, 10) === label.slice(0, 10));
-        console.log(label.slice(0, 10))
-        console.log(this.trainingPresences.labels)
-        console.log(index)
         if (index != -1) {
           this.trainingPresences.labels.splice(index, 1, label);
           this.trainingPresences.presences.forEach((presence, i) => presence.presenceTypes.splice(index, 1,result.data.presenceList[i] ? "Présent" : "Absent"));
@@ -71,9 +68,11 @@ export class PresenceTrainingComponent implements OnInit {
   openDeleteTrainingModal() {
     const dialogRef = this.dialog.open(DeleteTrainingComponent, {data: {existingTrainings: this.trainingPresences.labels}});
     dialogRef.afterClosed().subscribe(result => {
-      let index = result.data;
-      this.trainingPresences.labels.splice(index, 1);
-      this.trainingPresences.presences.forEach(presence => presence.presenceTypes.splice(index, 1));
+      if (result.data) {
+        let index = result.data;
+        this.trainingPresences.labels.splice(index, 1);
+        this.trainingPresences.presences.forEach(presence => presence.presenceTypes.splice(index, 1));
+      }
     });
   }
 

@@ -7,15 +7,15 @@ export const MATCH_PRESENCE: PresenceList = {
     presences: [
         {
             player: "Alberto",
-            presenceTypes: ["Absent", "Absent", "Absent"]
+            presenceTypes: ["Présent", "Absent", "Absent"]
         },
         {
             player: "Anaelle",
-            presenceTypes: ["Absent", "Absent", "Absent"]
+            presenceTypes: ["Absent", "Présent", "Absent"]
         },
         {
             player: "Anne-Laure",
-            presenceTypes: ["Absent", "Absent", "Absent"]
+            presenceTypes: ["Présent", "Présent", "Absent"]
         },
         {
             player: "Arnaud",
@@ -23,55 +23,55 @@ export const MATCH_PRESENCE: PresenceList = {
         },
         {
             player: "Axel",
-            presenceTypes: ["Absent", "Absent", "Absent"]
+            presenceTypes: ["Présent", "Absent", "Absent"]
         },
         {
             player: "Cédric",
-            presenceTypes: ["Absent", "Absent", "Absent"]
+            presenceTypes: ["Présent sans jouer", "Présent sans jouer", "Présent"]
         },
         {
             player: "Chloé",
-            presenceTypes: ["Absent", "Absent", "Absent"]
+            presenceTypes: ["Présent", "Présent", "Absent"]
         },
         {
             player: "Daniel",
-            presenceTypes: ["Absent", "Absent", "Absent"]
+            presenceTypes: ["Absent", "Absent", "Présent"]
         },
         {
             player: "Florent",
-            presenceTypes: ["Absent", "Absent", "Absent"]
+            presenceTypes: ["Absent", "Présent", "Présent sans jouer"]
         },
         {
             player: "Frank",
-            presenceTypes: ["Absent", "Absent", "Absent"]
+            presenceTypes: ["Absent", "Présent", "Présent"]
         },
         {
             player: "Hugo",
-            presenceTypes: ["Absent", "Absent", "Absent"]
+            presenceTypes: ["Absent", "Absent", "Présent"]
         },
         {
             player: "Isabelle",
-            presenceTypes: ["Absent", "Absent", "Absent"]
+            presenceTypes: ["Présent", "Présent", "Absent"]
         },
         {
             player: "Jessica",
-            presenceTypes: ["Absent", "Absent", "Absent"]
+            presenceTypes: ["Présent", "Présent", "Présent"]
         },
         {
             player: "Laurence",
-            presenceTypes: ["Absent", "Absent", "Absent"]
+            presenceTypes: ["Présent", "Présent", "Présent"]
         },
         {
             player: "Margaux",
-            presenceTypes: ["Absent", "Absent", "Absent"]
+            presenceTypes: ["Absent", "Présent", "Présent"]
         },
         {
             player: "Sanaa",
-            presenceTypes: ["Absent", "Absent", "Absent"]
+            presenceTypes: ["Absent", "Absent", "Présent"]
         },
         {
             player: "Sara",
-            presenceTypes: ["Absent", "Absent", "Absent"]
+            presenceTypes: ["Absent", "Présent", "Absent"]
         }
     ]
 };

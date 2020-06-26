@@ -154,5 +154,8 @@ $candy-app-theme: mat-dark-theme($candy-app-primary, $candy-app-accent, $candy-a
   background-color: #495057;
 }
 
+table {
+  color: #3e3f3a;
+}
 
 @import "~leaflet/dist/leaflet.css";

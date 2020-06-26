@@ -1,0 +1,27 @@
+.presence-table {
+    th {
+        text-align: center;
+        padding: 10px 18px;
+        border-bottom: 1px solid #111;
+        color: #3e3f3a;
+    }
+    td {
+        text-align : center;
+        border-bottom: 1px solid #DDDDDD;
+        color: #3e3f3a;
+    }
+    border-spacing: 0px;
+    .table-player-col {
+        width: 100px;
+        height: 30px;
+    }
+    .is-present {
+        background-color: rgb(145, 207, 96);
+    }
+    .is-present-without-playing {
+        background-color: rgb(255, 255, 191);
+    }
+    .is-absent {
+        background-color: rgb(252, 141, 89);
+    }
+}

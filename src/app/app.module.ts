@@ -47,6 +47,8 @@ import { LoginComponent } from './modals/login/login.component';
 import { AvailabilityComponent } from './modals/availability/availability.component';
 import { AddTrainingComponent } from './modals/add-training/add-training.component';
 import { DeleteTrainingComponent } from './modals/delete-training/delete-training.component';
+import { AddMatchComponent } from './modals/add-match/add-match.component';
+import { DeleteMatchComponent } from './modals/delete-match/delete-match.component';
 
 @NgModule({
   declarations: [
@@ -62,7 +64,9 @@ import { DeleteTrainingComponent } from './modals/delete-training/delete-trainin
     LoginComponent,
     AvailabilityComponent,
     AddTrainingComponent,
-    DeleteTrainingComponent
+    DeleteTrainingComponent,
+    AddMatchComponent,
+    DeleteMatchComponent
   ],
   imports: [
     BrowserModule,
@@ -101,7 +105,9 @@ import { DeleteTrainingComponent } from './modals/delete-training/delete-trainin
     LoginComponent,
     AvailabilityComponent,
     AddTrainingComponent,
-    DeleteTrainingComponent
+    DeleteTrainingComponent,
+    AddMatchComponent,
+    DeleteMatchComponent
   ]
 })
 export class AppModule { }

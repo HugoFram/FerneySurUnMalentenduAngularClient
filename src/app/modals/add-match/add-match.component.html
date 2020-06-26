@@ -1,0 +1,40 @@
+<h1 mat-dialog-title>Ajouter un match</h1>
+
+<form [formGroup] = "matchForm" (ngSubmit) = "onSubmit()">
+  <mat-dialog-content>
+    <div fxFlex fxLayout = "column" fxLayoutAlign = "start">
+      <mat-form-field>
+        <input matInput formControlName = "opponent" placeholder = "Adversaire" type = "text" required>
+        <mat-error *ngIf = "formErrors.opponent">{{ formErrors.opponent }}</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput formControlName = "setsWon" placeholder = "Sets gagnés" type = "text" required pattern = "[0-3]{1}">
+        <mat-error *ngIf = "formErrors.setsWon">{{ formErrors.setsWon }}</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput formControlName = "setsLost" placeholder = "Sets perdus" type = "text" required pattern = "[0-3]{1}">
+        <mat-error *ngIf = "formErrors.setsLost">{{ formErrors.setsLost }}</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput [matDatepicker]="myDatepicker" formControlName = "date">
+        <mat-datepicker-toggle matSuffix [for]="myDatepicker"></mat-datepicker-toggle>
+        <mat-datepicker #myDatepicker></mat-datepicker>
+      </mat-form-field>
+      <h1 mat-dialog-title>Qui était présent?</h1>
+      <label formArrayName="presenceList" *ngFor="let order of matchForm.controls.presenceList.controls; let i = index">
+        <input type="checkbox" [formControlName]="i">
+        {{presences[i]}}
+      </label>
+      <h1 mat-dialog-title>Qui était présent sans jouer?</h1>
+      <label formArrayName="presenceWithoutPlayingList" *ngFor="let order of matchForm.controls.presenceWithoutPlayingList.controls; let i = index">
+        <input type="checkbox" [formControlName]="i">
+        {{presences[i]}}
+      </label>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <span class = "flex-spacer"></span>
+    <button mat-raised-button mat-dialog-close color = "primary">Retour</button>
+    <button mat-raised-button color = "primary" type = "submit" [disabled] = "!matchForm.valid">Valider</button>
+  </mat-dialog-actions>
+</form>

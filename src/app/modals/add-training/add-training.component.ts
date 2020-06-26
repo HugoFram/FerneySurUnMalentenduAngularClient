@@ -53,7 +53,6 @@ export class AddTrainingComponent implements OnInit {
     this.addCheckboxes()
 
     this.trainingForm.controls.date.valueChanges.subscribe(data => {
-      console.log("Date changed");
       this.onValueChanged(data);
     });
     
