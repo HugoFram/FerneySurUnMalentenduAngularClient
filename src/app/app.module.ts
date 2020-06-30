@@ -49,6 +49,7 @@ import { AddTrainingComponent } from './modals/add-training/add-training.compone
 import { DeleteTrainingComponent } from './modals/delete-training/delete-training.component';
 import { AddMatchComponent } from './modals/add-match/add-match.component';
 import { DeleteMatchComponent } from './modals/delete-match/delete-match.component';
+import { PlayerComponent } from './modals/player/player.component';
 
 @NgModule({
   declarations: [
@@ -66,7 +67,8 @@ import { DeleteMatchComponent } from './modals/delete-match/delete-match.compone
     AddTrainingComponent,
     DeleteTrainingComponent,
     AddMatchComponent,
-    DeleteMatchComponent
+    DeleteMatchComponent,
+    PlayerComponent
   ],
   imports: [
     BrowserModule,
@@ -107,7 +109,8 @@ import { DeleteMatchComponent } from './modals/delete-match/delete-match.compone
     AddTrainingComponent,
     DeleteTrainingComponent,
     AddMatchComponent,
-    DeleteMatchComponent
+    DeleteMatchComponent,
+    PlayerComponent
   ]
 })
 export class AppModule { }

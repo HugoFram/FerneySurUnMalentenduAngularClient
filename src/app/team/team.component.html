@@ -1,3 +1,32 @@
-<p>
-  team works!
-</p>
+<div class="container"
+  fxLayout="column"
+  fxLayoutAlign.gt-md="start stretch"
+  fxLayoutGap="10px" 
+  fxLayoutGap.xs="0">
+  <table mat-table matSort class="mat-elevation-z8" [dataSource] = "playersTableData" (matSortChange)="sortData($event)" matSortActive="firstname" matSortDirection="asc" matSortDisableClear>
+
+    <ng-container matColumnDef="firstname">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Prénom </th>
+      <td mat-cell *matCellDef="let element"> {{element.firstname}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="lastname">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Nom </th>
+      <td mat-cell *matCellDef="let element"> {{element.lastname}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="role">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Poste préféré </th>
+      <td mat-cell *matCellDef="let element"> {{element.role}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="email">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Adresse e-mail </th>
+      <td mat-cell *matCellDef="let element"> {{element.email}} </td>
+    </ng-container>
+  
+    <!-- Header and Row Declarations -->
+    <tr mat-header-row *matHeaderRowDef="['firstname', 'lastname', 'role', 'email']"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['firstname', 'lastname', 'role', 'email']" (click) = "openPlayerModal(row)" ></tr>
+  </table>
+</div>
