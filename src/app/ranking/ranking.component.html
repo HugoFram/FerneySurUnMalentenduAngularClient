@@ -1,3 +1,65 @@
-<p>
-  ranking works!
-</p>
+<div class="container"
+  fxLayout="column"
+  fxLayoutAlign.gt-md="start stretch"
+  fxLayoutGap="10px" 
+  fxLayoutGap.xs="0">
+  <table mat-table class="mat-elevation-z8" [dataSource] = "ranksTableData" (matSortChange)="sortData($event)">
+
+    <ng-container matColumnDef="rank">
+      <th mat-header-cell *matHeaderCellDef> Classement </th>
+      <td mat-cell *matCellDef="let element"> {{element.rank}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="team">
+      <th mat-header-cell *matHeaderCellDef> Equipe </th>
+      <td mat-cell *matCellDef="let element"> {{element.team}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="score">
+      <th mat-header-cell *matHeaderCellDef> Score </th>
+      <td mat-cell *matCellDef="let element"> {{element.score}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="wins">
+      <th mat-header-cell *matHeaderCellDef> Victoires </th>
+      <td mat-cell *matCellDef="let element"> {{element.wins}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="losses">
+      <th mat-header-cell *matHeaderCellDef> Défaites </th>
+      <td mat-cell *matCellDef="let element"> {{element.losses}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="setsWon">
+      <th mat-header-cell *matHeaderCellDef> Sets Gagnés </th>
+      <td mat-cell *matCellDef="let element"> {{element.setsWon}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="setsLost">
+      <th mat-header-cell *matHeaderCellDef> Sets Perdus </th>
+      <td mat-cell *matCellDef="let element"> {{element.setsLost}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="pointsWon">
+      <th mat-header-cell *matHeaderCellDef> Points Gagnés </th>
+      <td mat-cell *matCellDef="let element"> {{element.pointsWon}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="pointsLost">
+      <th mat-header-cell *matHeaderCellDef> Points Perdus </th>
+      <td mat-cell *matCellDef="let element"> {{element.pointsLost}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="numMatches">
+      <th mat-header-cell *matHeaderCellDef> Matchs </th>
+      <td mat-cell *matCellDef="let element"> {{element.numMatches}} </td>
+    </ng-container>
+  
+    <!-- Header and Row Declarations -->
+    <tr mat-header-row *matHeaderRowDef="['rank', 'team', 'score', 'wins', 'losses', 'setsWon', 'setsLost', 'pointsWon', 'pointsLost', 'numMatches']"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['rank', 'team', 'score', 'wins', 'losses', 'setsWon', 'setsLost', 'pointsWon', 'pointsLost', 'numMatches']"
+      [ngClass]="{
+        'is-our-team': row.team === 'Ferney sur un malentendu'
+      }"></tr>
+  </table>
+</div>

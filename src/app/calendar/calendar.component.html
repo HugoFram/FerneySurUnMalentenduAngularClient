@@ -1,3 +1,57 @@
-<p>
-  calendar works!
-</p>
+<div class="container"
+  fxLayout="column"
+  fxLayoutAlign.gt-md="start stretch"
+  fxLayoutGap="10px" 
+  fxLayoutGap.xs="0">
+
+  <div fxLayout fxLayoutAlign="center center">
+    <mat-form-field fxFlex = "40%">
+      <mat-label>Filtre</mat-label>
+      <input matInput (keyup)="applyFilter($event)" placeholder="Rechercher" #input>
+    </mat-form-field>
+  </div>
+  <table mat-table matSort class="mat-elevation-z8" [dataSource] = "calendarTableData">
+
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Numéro de Match </th>
+      <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="home">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Domicile </th>
+      <td mat-cell *matCellDef="let element"
+        [ngClass]="{
+          'is-our-team': element.home === 'Ferney sur un malentendu'
+        }"> {{element.home}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="visitor">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Visiteur </th>
+      <td mat-cell *matCellDef="let element"
+        [ngClass]="{
+          'is-our-team': element.visitor === 'Ferney sur un malentendu'
+        }"> {{element.visitor}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="date">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Date </th>
+      <td mat-cell *matCellDef="let element"> {{element.date.toLocaleDateString('fr-FR')}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="hour">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Heure </th>
+      <td mat-cell *matCellDef="let element"> {{element.hour}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="place">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Adresse </th>
+      <td mat-cell *matCellDef="let element"> 
+        <a class="address" href = {{element.id}} >{{element.place}}</a> 
+      </td>
+    </ng-container>
+  
+    <!-- Header and Row Declarations -->
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+</div>

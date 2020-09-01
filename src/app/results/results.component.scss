@@ -1,0 +1,36 @@
+table {
+    width: 100%;
+    }
+      
+    .mat-table{
+    background-color:white;
+        .mat-header-cell {
+            color: #3e3f3a;
+            border-bottom: 2px solid #424242;
+            font-weight: bold;
+            font-size: medium;
+        }
+        .mat-cell {
+            color: #3e3f3a;
+            
+        }
+        .mat-row {
+            height: 38px;
+        }
+
+        .mat-row:nth-child(even){
+            background-color: #F9F9F9;
+        }
+        
+        .mat-row:nth-child(odd){
+            background-color:#FFFFFF;
+        }
+
+        .mat-cell.is-our-team {
+            font-weight: bold;
+        }
+
+        .mat-row:hover {
+            background-color: #F0F0F0;
+        }
+    }

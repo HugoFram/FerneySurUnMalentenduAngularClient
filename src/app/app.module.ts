@@ -31,6 +31,7 @@ import { MatchAvailabilityService } from './services/match-availability.service'
 import { MatchService } from './services/match.service';
 import { RoomService } from './services/room.service';
 import { PresenceService } from './services/presence.service';
+import { RankService } from './services/rank.service';
 
 import { AppComponent } from './app.component';
 import { fromEventPattern } from 'rxjs';
@@ -100,6 +101,7 @@ import { PlayerComponent } from './modals/player/player.component';
     MatchService,
     RoomService,
     PresenceService,
+    RankService,
     {provide: MAT_DATE_LOCALE, useValue: 'fr-FR'}
   ],
   bootstrap: [AppComponent],
