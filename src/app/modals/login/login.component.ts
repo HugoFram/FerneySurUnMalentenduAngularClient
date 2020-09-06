@@ -17,13 +17,17 @@ export class LoginComponent implements OnInit {
   players: Player[];
   selectedPlayer: string;
   playerForm: FormGroup
+  errMess: string;
 
   constructor(public dialogRef: MatDialogRef<LoginComponent>, private playerService: PlayerService, private formBuild: FormBuilder, 
               @Optional() @Inject(MAT_DIALOG_DATA) public data: any) { 
     this.playerForm = this.formBuild.group({
       playerName: [data ? data.initialPlayerName : "-", Validators.minLength(2)]
     });
-    this.players = this.playerService.getPlayers();
+    this.playerService.getPlayers().subscribe(players => {
+      console.log(players);
+      this.players = players;
+    }, errmess => this.errMess = <any>errmess);
     //this.playerForm.valueChanges.subscribe(data => this.onValueChanged(data));
     
     //this.onValueChanged(); 

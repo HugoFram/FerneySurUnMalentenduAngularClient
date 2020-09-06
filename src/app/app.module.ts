@@ -24,6 +24,7 @@ import { MAT_DATE_LOCALE } from '@angular/material/core';
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 registerLocaleData(localeFr);
+import { HttpClientModule } from '@angular/common/http';
 
 import { MapService } from './services/map.service';
 import { PlayerService } from './services/player.service';
@@ -32,6 +33,7 @@ import { MatchService } from './services/match.service';
 import { RoomService } from './services/room.service';
 import { PresenceService } from './services/presence.service';
 import { RankService } from './services/rank.service';
+import { ProcessHTTPMsgService } from './services/process-httpmsg.service';
 
 import { AppComponent } from './app.component';
 import { fromEventPattern } from 'rxjs';
@@ -92,7 +94,8 @@ import { PlayerComponent } from './modals/player/player.component';
     ReactiveFormsModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatInputModule
+    MatInputModule,
+    HttpClientModule
   ],
   providers: [
     MapService,
@@ -102,6 +105,7 @@ import { PlayerComponent } from './modals/player/player.component';
     RoomService,
     PresenceService,
     RankService,
+    ProcessHTTPMsgService,
     {provide: MAT_DATE_LOCALE, useValue: 'fr-FR'}
   ],
   bootstrap: [AppComponent],

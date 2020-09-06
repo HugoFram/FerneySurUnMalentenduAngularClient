@@ -17,12 +17,15 @@ export class TeamComponent implements OnInit {
 
   players: Player[];
   playersTableData: Player[];
+  errMess: string;
 
   constructor(private playerService: PlayerService, private dialog: MatDialog) { }
 
   ngOnInit() {
-    this.players = this.playerService.getPlayers();
-    this.sortData({active: "firstname", direction: "asc"});
+    this.playerService.getPlayers().subscribe(players => {
+      this.players = players;
+      this.sortData({active: "firstname", direction: "asc"});
+    }, errmess => this.errMess = <any>errmess);
   }
 
   sortData(sort: Sort) {
