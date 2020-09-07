@@ -6,6 +6,7 @@ import { formatDate } from '@angular/common';
 import { AddMatchComponent } from '../modals/add-match/add-match.component';
 import { DeleteMatchComponent } from '../modals/delete-match/delete-match.component';
 import { PresenceList } from '../shared/presenceList';
+import { Presence } from '../shared/presence';
 import { PresenceService } from '../services/presence.service';
 
 class PickDateAdapter extends NativeDateAdapter {
@@ -44,7 +45,41 @@ export class PresenceMatchComponent implements OnInit {
   constructor(private presenceService: PresenceService, private dialog: MatDialog) { }
 
   ngOnInit() {
-    this.matchPresences = this.presenceService.getMatchPresences();
+    this.presenceService.getMatchPresences().subscribe(presencesDB => {
+      this.matchPresences = new PresenceList();
+      // Count number of distinct dates (= num trainings) in the DB table
+      let numMatches = Object.keys(presencesDB.reduce((acc, presenceDB) => {
+        acc[presenceDB.date] = acc[presenceDB.date] ? acc[presenceDB.date] + 1 : 1;
+        return acc;
+      }, Object.create(null))).length; 
+      // Create a presence entry (= player + list of presenceTypes) for each player from the DB table
+      this.matchPresences.presences = Object.keys(presencesDB.reduce((acc, presenceDB) => {
+        acc[presenceDB.name] = acc[presenceDB.name] ? acc[presenceDB.name] + 1 : 1;
+        return acc;
+      }, Object.create(null))).map(key => {
+        let presence = new Presence();
+        presence = {player: key, presenceTypes: Array<string>(numMatches)};
+        return presence;
+      });
+      this.matchPresences.labels = new Array<string>(); 
+
+      presencesDB.forEach(presenceDB => {
+        // Find index of the presence entry that corresponds to the player from the DB table entry
+        let indexPlayer = this.matchPresences.presences.findIndex(presence => presence.player == presenceDB.name);
+        let indexMatch = this.matchPresences.labels.findIndex(label => label.includes(new Date(presenceDB.date).toLocaleDateString()));
+        if (indexMatch == -1) {
+        // If the training is not loaded yet
+          // Create a label for the training and add it to the list of training labels
+          this.matchPresences.labels.push(presenceDB.adversary + "<br>" + new Date(presenceDB.date).toLocaleDateString() + "<br>" + "(" + presenceDB.setsWon + "-" + presenceDB.setsLost + ")");
+
+          // The index of the training is the number of training already loaded (0-based indexing)
+          indexMatch = this.matchPresences.labels.length - 1;
+        }
+
+        // Set the presence type for this player and this training
+        this.matchPresences.presences[indexPlayer].presenceTypes[indexMatch] = presenceDB.presence;
+      });
+    });
   }
 
   openAddMatchModal() {
