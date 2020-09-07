@@ -46,7 +46,7 @@
     <ng-container matColumnDef="place">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Adresse </th>
       <td mat-cell *matCellDef="let element"> 
-        <a class="address" href = {{element.id}} >{{element.place}}</a> 
+        <a class="address" href = "{{'https://www.google.com/maps/search/?api=1&query=' + element.place}}" target="_blank">{{element.place}}</a> 
       </td>
     </ng-container>
   
