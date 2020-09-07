@@ -63,7 +63,6 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
         let av = new Availability();
         let pl = this.playerService.getPlayer(availability.name);
         av = {
-          id: 0,
           player: pl,
           availabilityType: availability.availability,
           trainingPresence: availability.trainingPresence,
@@ -140,7 +139,6 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
     this.availabilityTableData = data.sort((a, b) => {
       const isAsc = sort.direction === 'asc';
       switch (sort.active) {
-        case 'id': return compare(a.id, b.id, isAsc);
         case 'playerName': return compare(a.player.firstname, b.player.firstname, isAsc);
         case 'availabilityType': return compare(a.availabilityType, b.availabilityType, isAsc);
         case 'playerRole': return compare(a.player.role, b.player.role, isAsc);
@@ -176,13 +174,9 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
         console.log(existingAvailabity);
         if (existingAvailabity) {
           this.matchAvailability.availabilities = this.matchAvailability.availabilities.filter(availability =>  availability.player.firstname != this.loggedPlayer);
-          availabilityId = existingAvailabity.id;
-        } else {
-          availabilityId = Math.max.apply(Math, this.matchAvailability.availabilities.map(availability => availability.id)) + 1;  
         }
 
         newAvailability = {
-          id: availabilityId,
           player: player,
           availabilityType: result.data.availability,
           trainingPresence: "61 % (11/18)",

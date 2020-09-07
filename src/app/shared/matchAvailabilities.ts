@@ -5,7 +5,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
         matchNum: "34014",
         availabilities: [
             {
-                id: 1,
                 player: {
                     firstname: "Arnaud",
                     lastname: "Burnier",
@@ -18,7 +17,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
                 selection: "Indeterminé"
             },
             {
-                id: 2,
                 player: {
                     firstname: "Chloé",
                     lastname: "Bigot",
@@ -31,7 +29,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
                 selection: "Sélectionné"
             },
             {
-                id: 3,
                 player: {
                     firstname: "Daniel",
                     lastname: "Nguyen",
@@ -44,7 +41,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
                 selection: "Non Sélectionné"
             },
             {
-                id: 4,
                 player: {
                     firstname: "Laurence",
                     lastname: "Dunoyer",
@@ -57,7 +53,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
                 selection: "Indeterminé"
             },
             {
-                id: 5,
                 player: {
                     firstname: "Sanaa",
                     lastname: "Gasmi",
@@ -70,7 +65,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
                 selection: "Indeterminé"
             },
             {
-                id: 6,
                 player: {
                     firstname: "Alberto",
                     lastname: "Pace",
@@ -83,7 +77,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
                 selection: "Indeterminé"
             },
             {
-                id: 7,
                 player: {
                     firstname: "Hugo",
                     lastname: "Frammery",
@@ -96,7 +89,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
                 selection: "Indeterminé"
             },
             {
-                id: 8,
                 player: {
                     firstname: "Florent",
                     lastname: "Arrigoni",
@@ -109,7 +101,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
                 selection: "Indeterminé"
             },
             {
-                id: 9,
                 player: {
                     firstname: "Frank",
                     lastname: "Tecker",
@@ -122,7 +113,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
                 selection: "Indeterminé"
             },
             {
-                id: 10,
                 player: {
                     firstname: "Isabelle",
                     lastname: "Zdancewicz",
@@ -135,7 +125,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
                 selection: "Indeterminé"
             },
             {
-                id: 11,
                 player: {
                     firstname: "Jessica",
                     lastname: "Marie",
@@ -148,7 +137,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
                 selection: "Indeterminé"
             },
             {
-                id: 12,
                 player: {
                     firstname: "Anaelle",
                     lastname: "Pirat",
@@ -161,7 +149,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
                 selection: "Indeterminé"
             },
             {
-                id: 13,
                 player: {
                     firstname: "Cédric",
                     lastname: "Bussutil",
@@ -174,7 +161,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
                 selection: "Indeterminé"
             },
             {
-                id: 14,
                 player: {
                     firstname: "Margaux",
                     lastname: "Mathis",
@@ -187,7 +173,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
                 selection: "Indeterminé"
             },
             {
-                id: 15,
                 player: {
                     firstname: "Anne-Laure",
                     lastname: "Pietrzak",
@@ -200,7 +185,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
                 selection: "Indeterminé"
             },
             {
-                id: 16,
                 player: {
                     firstname: "Sara",
                     lastname: "Lippert",
@@ -213,7 +197,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
                 selection: "Indeterminé"
             },
             {
-                id: 17,
                 player: {
                     firstname: "Axel",
                     lastname: "Bazzoli",
@@ -231,7 +214,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
         matchNum: "34024",
         availabilities: [
             {
-                id: 1,
                 player: {
                     firstname: "Arnaud",
                     lastname: "Burnier",
@@ -244,7 +226,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
                 selection: "Indeterminé"
             },
             {
-                id: 2,
                 player: {
                     firstname: "Chloé",
                     lastname: "Bigot",
@@ -257,7 +238,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
                 selection: "Indeterminé"
             },
             {
-                id: 3,
                 player: {
                     firstname: "Daniel",
                     lastname: "Nguyen",
@@ -270,7 +250,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
                 selection: "Indeterminé"
             },
             {
-                id: 4,
                 player: {
                     firstname: "Laurence",
                     lastname: "Dunoyer",
@@ -283,7 +262,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
                 selection: "Indeterminé"
             },
             {
-                id: 5,
                 player: {
                     firstname: "Sanaa",
                     lastname: "Gasmi",
@@ -296,7 +274,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
                 selection: "Indeterminé"
             },
             {
-                id: 6,
                 player: {
                     firstname: "Alberto",
                     lastname: "Pace",
@@ -314,7 +291,6 @@ export const MATCH_AVAILABILITIES: MatchAvailability[] = [
         matchNum: "34034",
         availabilities: [
             {
-                id: 1,
                 player: {
                     firstname: "Arnaud",
                     lastname: "Burnier",
