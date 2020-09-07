@@ -6,6 +6,7 @@ import { formatDate } from '@angular/common';
 import { AddTrainingComponent } from '../modals/add-training/add-training.component';
 import { DeleteTrainingComponent } from '../modals/delete-training/delete-training.component';
 import { PresenceList } from '../shared/presenceList';
+import { Presence } from '../shared/presence';
 import { PresenceService } from '../services/presence.service';
 
 class PickDateAdapter extends NativeDateAdapter {
@@ -44,7 +45,44 @@ export class PresenceTrainingComponent implements OnInit {
   constructor(private presenceService: PresenceService, private dialog: MatDialog) { }
 
   ngOnInit() {
-    this.trainingPresences = this.presenceService.getTrainingPresences();
+    this.presenceService.getTrainingPresences().subscribe(presencesDB => {
+      this.trainingPresences = new PresenceList();
+      // Count number of distinct dates (= num trainings) in the DB table
+      let numTrainings = Object.keys(presencesDB.reduce((acc, presenceDB) => {
+        acc[presenceDB.date] = acc[presenceDB.date] ? acc[presenceDB.date] + 1 : 1;
+        return acc;
+      }, Object.create(null))).length; 
+      // Create a presence entry (= player + list of presenceTypes) for each player from the DB table
+      this.trainingPresences.presences = Object.keys(presencesDB.reduce((acc, presenceDB) => {
+        acc[presenceDB.name] = acc[presenceDB.name] ? acc[presenceDB.name] + 1 : 1;
+        return acc;
+      }, Object.create(null))).map(key => {
+        let presence = new Presence();
+        presence = {player: key, presenceTypes: Array<string>(numTrainings)};
+        return presence;
+      });
+      this.trainingPresences.labels = new Array<string>(); 
+
+      presencesDB.forEach(presenceDB => {
+        // Find index of the presence entry that corresponds to the player from the DB table entry
+        let indexPlayer = this.trainingPresences.presences.findIndex(presence => presence.player == presenceDB.name);
+        let indexTraining = this.trainingPresences.labels.findIndex(label => label.includes(new Date(presenceDB.date).toLocaleDateString()));
+        if (indexTraining == -1) {
+        // If the training is not loaded yet
+          // Create a label for the training and add it to the list of training labels
+          this.trainingPresences.labels.push(new Date(presenceDB.date).toLocaleDateString() + " (" + (presenceDB.presence == "Présent" ? "1" : "0") + ")");
+
+          // The index of the training is the number of training already loaded (0-based indexing)
+          indexTraining = this.trainingPresences.labels.length - 1;
+        } else {
+          let numPresent = Number(this.trainingPresences.labels[indexTraining].match(/[(]([0-9]+)[)]/)[1]) + (presenceDB.presence == "Présent" ? 1 : 0);
+          this.trainingPresences.labels[indexTraining] = this.trainingPresences.labels[indexTraining].slice(0, 10) + " (" + numPresent + ")";
+        }
+
+        // Set the presence type for this player and this training
+        this.trainingPresences.presences[indexPlayer].presenceTypes[indexTraining] = presenceDB.presence;
+      });
+    });
   }
 
   openAddTrainingModal() {

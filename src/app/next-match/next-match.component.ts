@@ -51,8 +51,8 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
       let match_availabilities = new Array<MatchAvailability>();
       
       availabilities.forEach(availability => {
-        let index = match_availabilities.findIndex(matchav => matchav.matchNum === availability.matchNum);
-        if (index === -1) {
+        let index = match_availabilities.findIndex(matchav => matchav.matchNum == availability.matchNum);
+        if (index == -1) {
           match_availabilities.push(new MatchAvailability())
           index = match_availabilities.length - 1;
           match_availabilities[index] = {
