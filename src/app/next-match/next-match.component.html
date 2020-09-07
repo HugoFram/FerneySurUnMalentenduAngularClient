@@ -56,7 +56,7 @@
   </div>
 
   <div fxFlex = "80" fxFlex.sm = "100">
-    <table mat-table matSort class="mat-elevation-z8" [dataSource] = "availabilityTableData" (matSortChange)="sortData($event)">
+    <table mat-table matSort class="mat-elevation-z8" [dataSource] = "availabilityTableData" (matSortChange)="sortData($event)" *ngIf = availabilityTableData>
 
       <ng-container matColumnDef="id">
         <th mat-header-cell *matHeaderCellDef mat-sort-header></th>

@@ -11,6 +11,7 @@ import { Match  } from '../shared/match';
 import { NextMatch  } from '../shared/nextMatch';
 import { MatchAvailability } from '../shared/matchAvailability';
 import { Availability } from '../shared/availability';
+import { AvailabilityDbFormat } from '../shared/availabilityDbFormat';
 import { Room } from '../shared/room';
 import { Player } from '../shared/player';
 
@@ -36,21 +37,48 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
   matchAvailability: MatchAvailability;
   availabilityTableData: Availability[];
   loggedPlayer: string;
+  errMess: string;
 
   @ViewChild(MatSort) sort: MatSort;
 
   private map;
 
   constructor(private dialog: MatDialog, private mapService: MapService, private matchAvailabilityService: MatchAvailabilityService, 
-              private matchService: MatchService, private roomService: RoomService, private playerService: PlayerService) {
-    this.matchAvailabilities = this.matchAvailabilityService.getMatchAvailabilities();
+              private matchService: MatchService, private roomService: RoomService, private playerService: PlayerService) {}
+
+  ngOnInit() {
+    this.matchAvailabilityService.getMatchAvailabilities().subscribe(availabilities => {
+      let match_availabilities = new Array<MatchAvailability>();
+      
+      availabilities.forEach(availability => {
+        let index = match_availabilities.findIndex(matchav => matchav.matchNum === availability.matchNum);
+        if (index === -1) {
+          match_availabilities.push(new MatchAvailability())
+          index = match_availabilities.length - 1;
+          match_availabilities[index] = {
+            matchNum: availability.matchNum,
+            availabilities: new Array<Availability>()
+          }
+        }
+        let av = new Availability();
+        let pl = this.playerService.getPlayer(availability.name);
+        av = {
+          id: 0,
+          player: pl,
+          availabilityType: availability.availability,
+          trainingPresence: availability.trainingPresence,
+          matchPresence: availability.matchPresence,
+          selection: availability.selected
+        };
+        match_availabilities[index].availabilities.push(av);
+      });
+
+    this.matchAvailabilities = match_availabilities;
+    this.availabilityTableData = this.matchAvailabilities[0].availabilities.slice();
+
     this.matches = this.matchService.getMatches();
     this.rooms = this.roomService.getRooms();
 
-    this.availabilityTableData = this.matchAvailabilities[0].availabilities.slice();
-  }
-
-  ngOnInit() {
     this.nextMatches = this.matches.filter((match) => (match.date > new Date()) && (match.visitor == "Ferney sur un malentendu" || match.home == "Ferney sur un malentendu")).
       map((match) => {
         let nextMatch: NextMatch;
@@ -70,15 +98,22 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
     this.selectedRoom = this.rooms.filter((room) => room.address === this.nextMatches[0].place)[0];
     this.homeTeam = this.nextMatches[0].homeOrVisitor == "Domicile" ? "Ferney sur un malentendu" : this.nextMatches[0].opponent;
 
-    this.matchAvailability = this.matchAvailabilities.filter((matchAv) => matchAv.matchNum === this.nextMatches[0].matchNum)[0];
+    this.matchAvailability = this.matchAvailabilities.filter((matchAv) => matchAv.matchNum == this.nextMatches[0].matchNum)[0];
 
-    this.availabilityTableData = this.matchAvailability.availabilities.slice();
+    if (this.matchAvailability.availabilities.length > 0) {
+      this.availabilityTableData = this.matchAvailability.availabilities.slice();
+    } else {
+      this.availabilityTableData = null;
+    }
 
     this.playerService.getLoggedPlayer().subscribe((player) => this.loggedPlayer = player);
+
+    this.map = this.mapService.initMap(this.map, this.selectedRoom.longitude, this.selectedRoom.latitude, this.homeTeam);
+    }, errmess => this.errMess = <any>errmess);
   }
 
   ngAfterViewInit(): void {
-    this.map = this.mapService.initMap(this.map, this.selectedRoom.longitude, this.selectedRoom.latitude, this.homeTeam);
+    
   }
 
   onTabChange($event) {
@@ -86,9 +121,13 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
     this.selectedRoom = this.rooms.filter((room) => room.address === match.place)[0];
     this.homeTeam = match.homeOrVisitor == "Domicile" ? "Ferney sur un malentendu" : match.opponent;
     this.map = this.mapService.refreshMap(this.map, this.selectedRoom.longitude, this.selectedRoom.latitude, this.homeTeam);
-    this.matchAvailability = this.matchAvailabilities.filter((matchAv) => matchAv.matchNum === match.matchNum)[0];
+    this.matchAvailability = this.matchAvailabilities.filter((matchAv) => matchAv.matchNum == match.matchNum)[0];
 
-    this.availabilityTableData = this.matchAvailability.availabilities.slice();
+    if (this.matchAvailability.availabilities.length > 0) {
+      this.availabilityTableData = this.matchAvailability.availabilities.slice();
+    } else {
+      this.availabilityTableData = null;
+    }
   }
 
   sortData(sort: Sort) {

@@ -25,6 +25,8 @@ import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 registerLocaleData(localeFr);
 import { HttpClientModule } from '@angular/common/http';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 
 import { MapService } from './services/map.service';
 import { PlayerService } from './services/player.service';
@@ -95,7 +97,8 @@ import { PlayerComponent } from './modals/player/player.component';
     MatDatepickerModule,
     MatNativeDateModule,
     MatInputModule,
-    HttpClientModule
+    HttpClientModule,
+    MatProgressSpinnerModule
   ],
   providers: [
     MapService,

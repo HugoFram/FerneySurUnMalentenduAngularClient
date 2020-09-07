@@ -18,7 +18,7 @@ export const MATCHES: Match[] = [
         scoreVisitor: 1
     },
     {
-        id: "34014",
+        id: "34162",
         home: "Ferney sur un malentendu",
         visitor: "Châtelaine",
         date: new Date("2020-10-03"),
@@ -34,7 +34,7 @@ export const MATCHES: Match[] = [
         scoreVisitor: 1
     },
     {
-        id: "34024",
+        id: "34171",
         home: "Les Verdoyants",
         visitor: "Ferney sur un malentendu",
         date: new Date("2020-11-03"),
@@ -50,7 +50,7 @@ export const MATCHES: Match[] = [
         scoreVisitor: 1
     },
     {
-        id: "34034",
+        id: "34132",
         home: "Les Verdoyants",
         visitor: "Ferney sur un malentendu",
         date: new Date("2020-12-15"),
