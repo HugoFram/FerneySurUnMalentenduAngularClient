@@ -18,10 +18,10 @@ export class PresenceService {
   constructor(private http: HttpClient, private processHttpMsgService: ProcessHTTPMsgService) { }
 
   getTrainingPresences(): Observable<PresenceTrainingDbFormat[]> {
-    return this.http.get<PresenceTrainingDbFormat[]>(baseURL + "trainings").pipe(catchError(this.processHttpMsgService.handleError));
+    return this.http.get<PresenceTrainingDbFormat[]>(baseURL + "training-presences").pipe(catchError(this.processHttpMsgService.handleError));
   }
 
   getMatchPresences(): Observable<PresenceMatchDbFormat[]> {
-    return this.http.get<PresenceMatchDbFormat[]>(baseURL + "matches").pipe(catchError(this.processHttpMsgService.handleError));
+    return this.http.get<PresenceMatchDbFormat[]>(baseURL + "match-presences").pipe(catchError(this.processHttpMsgService.handleError));
   } 
 }

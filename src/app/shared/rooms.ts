@@ -48,5 +48,11 @@ export const ROOMS: Room[] = [
         address: "Avenue du Pailly 15, 1219 Châtelaine (école de Balexert)",
         latitude: 6.10956,
         longitude: 46.2162
+    },
+    {
+        id: 9,
+        address: "Gymnase de la Fontaine Sucrée, Sergy - Echauffement à 20:15",
+        latitude: 6.02577,
+        longitude: 46.2617
     }
 ];

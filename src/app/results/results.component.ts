@@ -16,16 +16,21 @@ export class ResultsComponent implements OnInit {
   displayedColumns: string[] = ['date', 'home', 'visitor', 'sets', 'setPoints', 'totalPointsHome', 'totalPointsVisitor'];
   results: Match[];
   resultsTableData: MatTableDataSource<Match>;
+  errMess: string;
 
   @ViewChild(MatSort) sort: MatSort;
 
-  constructor(private matchService: MatchService) { 
-    this.results = this.matchService.getMatches();
-    this.resultsTableData = new MatTableDataSource(this.results);
-  }
+  constructor(private matchService: MatchService) {}
 
   ngOnInit() {
-    this.resultsTableData.sort = this.sort;
+    this.matchService.getMatches().subscribe(matches => {
+      this.results = matches.map(match => {
+        match.date = new Date(match.date);
+        return match;
+      });
+      this.resultsTableData = new MatTableDataSource(this.results);
+      this.resultsTableData.sort = this.sort;
+    }, errmess => this.errMess = <any>errmess);
   }
 
   applyFilter(event: Event) {

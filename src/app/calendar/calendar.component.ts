@@ -16,16 +16,21 @@ export class CalendarComponent implements OnInit {
   displayedColumns: string[] = ['id', 'home', 'visitor', 'date', 'hour', 'place'];
   calendar: Match[];
   calendarTableData: MatTableDataSource<Match>;
+  errMess: string;
 
   @ViewChild(MatSort) sort: MatSort;
 
-  constructor(private matchService: MatchService) { 
-    this.calendar = this.matchService.getMatches();
-    this.calendarTableData = new MatTableDataSource(this.calendar);
-  }
+  constructor(private matchService: MatchService) {}
 
   ngOnInit() {
-    this.calendarTableData.sort = this.sort;
+    this.matchService.getMatches().subscribe(matches => {
+      this.calendar = matches.map(match => {
+        match.date = new Date(match.date);
+        return match;
+      });
+      this.calendarTableData = new MatTableDataSource<Match>(this.calendar);
+      this.calendarTableData.sort = this.sort;
+    }, errmess => this.errMess = <any>errmess);
   }
 
   applyFilter(event: Event) {

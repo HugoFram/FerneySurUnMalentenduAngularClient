@@ -100,6 +100,9 @@ import { PlayerComponent } from './modals/player/player.component';
     HttpClientModule,
     MatProgressSpinnerModule
   ],
+  exports: [
+    MatSortModule
+  ],
   providers: [
     MapService,
     PlayerService,
