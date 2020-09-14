@@ -35,10 +35,10 @@ export class MapService {
     return map;
   }
 
-  refreshMap(map, lgt, lat, label) {
-    map.setView([ lgt, lat ], 12);
+  refreshMap(map, lat, lgt, label) {
+    map.setView([ lat, lgt ], 12);
 
-    let marker = leaflet.marker([ lgt, lat ], {
+    let marker = leaflet.marker([ lat, lgt ], {
       icon: leaflet.icon({
         iconUrl: 'www/images/marker-icon.png',
         shadowUrl: 'www/images/marker-shadow.png',
