@@ -14,15 +14,20 @@ export class RankingComponent implements OnInit {
 
   ranks: Rank[];
   ranksTableData: Rank[];
+  errMess: string;
 
   constructor(private rankService: RankService) { }
 
   ngOnInit() {
-    this.ranks = this.rankService.getRanks();
-    const data = this.ranks.slice();
-    this.ranksTableData = data.sort((a, b) => {
-      return compare(a.rank, b.rank, true);
-    });
+    this.rankService.getRanks().subscribe(ranking => {
+      this.ranks = ranking;
+      if (this.ranks) {
+        const data = this.ranks.slice();
+        this.ranksTableData = data.sort((a, b) => {
+          return compare(a.rank, b.rank, true);
+        });
+      }
+    }, errmess => this.errMess = <any>errmess);
   }
 
 }

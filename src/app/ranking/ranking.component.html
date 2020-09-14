@@ -3,7 +3,7 @@
   fxLayoutAlign.gt-md="start stretch"
   fxLayoutGap="10px" 
   fxLayoutGap.xs="0">
-  <table mat-table class="mat-elevation-z8" [dataSource] = "ranksTableData" (matSortChange)="sortData($event)">
+  <table mat-table class="mat-elevation-z8" [dataSource] = "ranksTableData" *ngIf = "ranksTableData">
 
     <ng-container matColumnDef="rank">
       <th mat-header-cell *matHeaderCellDef> Classement </th>
