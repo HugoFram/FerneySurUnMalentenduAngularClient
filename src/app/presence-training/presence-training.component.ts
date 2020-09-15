@@ -1,13 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
 import { DateAdapter, NativeDateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
-import { formatDate } from '@angular/common';
+import { formatDate, DatePipe } from '@angular/common';
 
 import { AddTrainingComponent } from '../modals/add-training/add-training.component';
 import { DeleteTrainingComponent } from '../modals/delete-training/delete-training.component';
 import { PresenceList } from '../shared/presenceList';
 import { Presence } from '../shared/presence';
+import { PresenceTrainingDbFormat } from '../shared/presenceTrainingDbFormat';
 import { PresenceService } from '../services/presence.service';
+
+import { Observable } from 'rxjs';
+import * as moment from 'moment';
+import { baseURL } from '../shared/baseurl';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 class PickDateAdapter extends NativeDateAdapter {
   format(date: Date, displayFormat: Object): string {
@@ -42,7 +48,7 @@ export class PresenceTrainingComponent implements OnInit {
 
   trainingPresences: PresenceList;
 
-  constructor(private presenceService: PresenceService, private dialog: MatDialog) { }
+  constructor(private presenceService: PresenceService, private dialog: MatDialog, private datePipe: DatePipe, private http: HttpClient) { }
 
   ngOnInit() {
     this.presenceService.getTrainingPresences().subscribe(presencesDB => {
@@ -91,13 +97,30 @@ export class PresenceTrainingComponent implements OnInit {
       if (result.data) {
         let label = result.data.date.toLocaleDateString() + " (" + result.data.presenceList.reduce((acc, cur) => acc + cur, 0) + ")";
         let index = this.trainingPresences.labels.findIndex(lab => lab.slice(0, 10) === label.slice(0, 10));
+        let presencesDB = new Array<PresenceTrainingDbFormat>();
         if (index != -1) {
           this.trainingPresences.labels.splice(index, 1, label);
-          this.trainingPresences.presences.forEach((presence, i) => presence.presenceTypes.splice(index, 1,result.data.presenceList[i] ? "Présent" : "Absent"));
+          this.trainingPresences.presences.forEach((presence, i) => {
+            presence.presenceTypes.splice(index, 1, result.data.presenceList[i] ? "Présent" : "Absent");
+            presencesDB.push({
+              name: presence.player,
+              date: this.datePipe.transform(result.data.date, 'yyyy-MM-dd'),
+              presence: result.data.presenceList[i] ? "Présent" : "Absent"
+            });
+          });
         } else {
           this.trainingPresences.labels.push(label);
-          this.trainingPresences.presences.forEach((presence, i) => presence.presenceTypes.push(result.data.presenceList[i] ? "Présent" : "Absent"));
+          this.trainingPresences.presences.forEach((presence, i) => {
+            presence.presenceTypes.push(result.data.presenceList[i] ? "Présent" : "Absent");
+            presencesDB.push({
+              name: presence.player,
+              date: this.datePipe.transform(result.data.date, 'yyyy-MM-dd'),
+              presence: result.data.presenceList[i] ? "Présent" : "Absent"
+            });
+          });
         }
+
+        this.presenceService.postTrainingPresences(presencesDB, this.datePipe.transform(result.data.date, 'yyyy-MM-dd')).subscribe();
       }
     });
 
@@ -108,6 +131,8 @@ export class PresenceTrainingComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result.data) {
         let index = result.data;
+        let trainingDate = moment(this.trainingPresences.labels[index].slice(0, 10), "DD/MM/YYYY").format("YYYY-MM-DD");
+        this.presenceService.deleteTrainingPresences(trainingDate).subscribe(result => console.log(result));
         this.trainingPresences.labels.splice(index, 1);
         this.trainingPresences.presences.forEach(presence => presence.presenceTypes.splice(index, 1));
       }

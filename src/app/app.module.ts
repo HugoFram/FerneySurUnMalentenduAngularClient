@@ -26,6 +26,7 @@ import localeFr from '@angular/common/locales/fr';
 registerLocaleData(localeFr);
 import { HttpClientModule } from '@angular/common/http';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { DatePipe } from '@angular/common'
 
 
 import { MapService } from './services/map.service';
@@ -112,6 +113,7 @@ import { PlayerComponent } from './modals/player/player.component';
     PresenceService,
     RankService,
     ProcessHTTPMsgService,
+    DatePipe,
     {provide: MAT_DATE_LOCALE, useValue: 'fr-FR'}
   ],
   bootstrap: [AppComponent],
