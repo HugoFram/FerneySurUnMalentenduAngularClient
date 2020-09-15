@@ -132,7 +132,7 @@ export class PresenceTrainingComponent implements OnInit {
       if (result.data) {
         let index = result.data;
         let trainingDate = moment(this.trainingPresences.labels[index].slice(0, 10), "DD/MM/YYYY").format("YYYY-MM-DD");
-        this.presenceService.deleteTrainingPresences(trainingDate).subscribe(result => console.log(result));
+        this.presenceService.deleteTrainingPresences(trainingDate).subscribe();
         this.trainingPresences.labels.splice(index, 1);
         this.trainingPresences.presences.forEach(presence => presence.presenceTypes.splice(index, 1));
       }
