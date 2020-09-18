@@ -2,18 +2,17 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
 import { DateAdapter, NativeDateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { formatDate, DatePipe } from '@angular/common';
+import * as moment from 'moment';
 
 import { AddTrainingComponent } from '../modals/add-training/add-training.component';
 import { DeleteTrainingComponent } from '../modals/delete-training/delete-training.component';
 import { PresenceList } from '../shared/presenceList';
 import { Presence } from '../shared/presence';
 import { PresenceTrainingDbFormat } from '../shared/presenceTrainingDbFormat';
+import { Player } from '../shared/player';
 import { PresenceService } from '../services/presence.service';
-
-import { Observable } from 'rxjs';
-import * as moment from 'moment';
-import { baseURL } from '../shared/baseurl';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { PlayerService } from '../services/player.service';
+import { isNull } from 'util';
 
 class PickDateAdapter extends NativeDateAdapter {
   format(date: Date, displayFormat: Object): string {
@@ -47,8 +46,9 @@ class PickDateAdapter extends NativeDateAdapter {
 export class PresenceTrainingComponent implements OnInit {
 
   trainingPresences: PresenceList;
+  players: Player[];
 
-  constructor(private presenceService: PresenceService, private dialog: MatDialog, private datePipe: DatePipe, private http: HttpClient) { }
+  constructor(private presenceService: PresenceService, private playerService: PlayerService, private dialog: MatDialog, private datePipe: DatePipe) { }
 
   ngOnInit() {
     this.presenceService.getTrainingPresences().subscribe(presencesDB => {
@@ -88,11 +88,13 @@ export class PresenceTrainingComponent implements OnInit {
         // Set the presence type for this player and this training
         this.trainingPresences.presences[indexPlayer].presenceTypes[indexTraining] = presenceDB.presence;
       });
+
+      this.playerService.getPlayers().subscribe(players => this.players = players);
     });
   }
 
   openAddTrainingModal() {
-    const dialogRef = this.dialog.open(AddTrainingComponent, {data: {currentPresence: this.trainingPresences}});
+    const dialogRef = this.dialog.open(AddTrainingComponent, {data: {currentPresence: this.trainingPresences, players: this.players}});
     dialogRef.afterClosed().subscribe(result => {
       if (result.data) {
         let label = result.data.date.toLocaleDateString() + " (" + result.data.presenceList.reduce((acc, cur) => acc + cur, 0) + ")";
@@ -129,7 +131,7 @@ export class PresenceTrainingComponent implements OnInit {
   openDeleteTrainingModal() {
     const dialogRef = this.dialog.open(DeleteTrainingComponent, {data: {existingTrainings: this.trainingPresences.labels}});
     dialogRef.afterClosed().subscribe(result => {
-      if (result.data) {
+      if (result.data !== null) {
         let index = result.data;
         let trainingDate = moment(this.trainingPresences.labels[index].slice(0, 10), "DD/MM/YYYY").format("YYYY-MM-DD");
         this.presenceService.deleteTrainingPresences(trainingDate).subscribe();

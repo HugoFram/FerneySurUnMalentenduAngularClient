@@ -1,13 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
 import { DateAdapter, NativeDateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
-import { formatDate } from '@angular/common';
+import { formatDate, DatePipe } from '@angular/common';
+import * as moment from 'moment';
 
 import { AddMatchComponent } from '../modals/add-match/add-match.component';
 import { DeleteMatchComponent } from '../modals/delete-match/delete-match.component';
 import { PresenceList } from '../shared/presenceList';
 import { Presence } from '../shared/presence';
+import { PresenceMatchDbFormat } from '../shared/presenceMatchDbFormat';
+import { Player } from '../shared/player';
 import { PresenceService } from '../services/presence.service';
+import { PlayerService } from '../services/player.service';
 
 class PickDateAdapter extends NativeDateAdapter {
   format(date: Date, displayFormat: Object): string {
@@ -41,8 +45,9 @@ class PickDateAdapter extends NativeDateAdapter {
 export class PresenceMatchComponent implements OnInit {
 
   matchPresences: PresenceList;
+  players: Player[];
 
-  constructor(private presenceService: PresenceService, private dialog: MatDialog) { }
+  constructor(private presenceService: PresenceService, private playerService: PlayerService, private dialog: MatDialog, private datePipe: DatePipe) { }
 
   ngOnInit() {
     this.presenceService.getMatchPresences().subscribe(presencesDB => {
@@ -79,22 +84,64 @@ export class PresenceMatchComponent implements OnInit {
         // Set the presence type for this player and this training
         this.matchPresences.presences[indexPlayer].presenceTypes[indexMatch] = presenceDB.presence;
       });
+
+      this.playerService.getPlayers().subscribe(players => this.players = players);
     });
   }
 
   openAddMatchModal() {
-    const dialogRef = this.dialog.open(AddMatchComponent, {data: {currentPresence: this.matchPresences}});
+    const dialogRef = this.dialog.open(AddMatchComponent, {data: {currentPresence: this.matchPresences, players: this.players}});
     dialogRef.afterClosed().subscribe(result => {
       if (result.data) {
         let label = result.data.opponent + "<br>" + result.data.date.toLocaleDateString() + "<br>" + "(" + result.data.setsWon + "-" + result.data.setsLost + ")";
         let index = this.matchPresences.labels.findIndex(lab => lab === label);
+        let presencesDB = new Array<PresenceMatchDbFormat>();
         if (index != -1) {
           this.matchPresences.labels.splice(index, 1, label);
-          this.matchPresences.presences.forEach((presence, i) => presence.presenceTypes.splice(index, 1,result.data.presenceWithoutPlayingList[i] ? "Présent sans jouer" : (result.data.presenceList[i] ? "Présent" : "Absent")));
+          this.matchPresences.presences.forEach((presence, i) => {
+            presence.presenceTypes.splice(index, 1,result.data.presenceWithoutPlayingList[i] ? "Présent sans jouer" : (result.data.presenceList[i] ? "Présent" : "Absent"));
+            presencesDB.push({
+              name: presence.player,
+              date: this.datePipe.transform(result.data.date, 'yyyy-MM-dd'),
+              presence: result.data.presenceWithoutPlayingList[i] ? "Présent sans jouer" : (result.data.presenceList[i] ? "Présent" : "Absent"),
+              adversary: result.data.opponent,
+              setsWon: result.data.setsWon,
+              setsLost: result.data.setsLost
+            });
+          });
         } else {
           this.matchPresences.labels.push(label);
-          this.matchPresences.presences.forEach((presence, i) => presence.presenceTypes.push(result.data.presenceWithoutPlayingList[i] ? "Présent sans jouer" : (result.data.presenceList[i] ? "Présent" : "Absent")));
+          if (this.matchPresences.presences.length == 0) {
+            this.players.forEach((player, i) => {
+              this.matchPresences.presences.push({
+                player: player.firstname,
+                presenceTypes: [result.data.presenceWithoutPlayingList[i] ? "Présent sans jouer" : (result.data.presenceList[i] ? "Présent" : "Absent")]
+              });
+              presencesDB.push({
+                name: player.firstname,
+                date: this.datePipe.transform(result.data.date, 'yyyy-MM-dd'),
+                presence: result.data.presenceWithoutPlayingList[i] ? "Présent sans jouer" : (result.data.presenceList[i] ? "Présent" : "Absent"),
+                adversary: result.data.opponent,
+                setsWon: result.data.setsWon,
+                setsLost: result.data.setsLost
+              });
+            })
+          } else {
+            this.matchPresences.presences.forEach((presence, i) => {
+              presence.presenceTypes.push(result.data.presenceWithoutPlayingList[i] ? "Présent sans jouer" : (result.data.presenceList[i] ? "Présent" : "Absent"));
+              presencesDB.push({
+                name: presence.player,
+                date: this.datePipe.transform(result.data.date, 'yyyy-MM-dd'),
+                presence: result.data.presenceWithoutPlayingList[i] ? "Présent sans jouer" : (result.data.presenceList[i] ? "Présent" : "Absent"),
+                adversary: result.data.opponent,
+                setsWon: result.data.setsWon,
+                setsLost: result.data.setsLost
+              });
+            });
+          }
         }
+
+        this.presenceService.postMatchPresences(presencesDB, this.datePipe.transform(result.data.date, 'yyyy-MM-dd')).subscribe();
       }
     });
 
@@ -103,8 +150,11 @@ export class PresenceMatchComponent implements OnInit {
   openDeleteMatchModal() {
     const dialogRef = this.dialog.open(DeleteMatchComponent, {data: {existingMatches: this.matchPresences.labels}});
     dialogRef.afterClosed().subscribe(result => {
-      if (result.data) {
+      if (result.data !== null) {
         let index = result.data;
+        let label = this.matchPresences.labels[index];
+        let matchDate = moment(this.matchPresences.labels[index].slice(label.length - 19, label.length - 9), "DD/MM/YYYY").format("YYYY-MM-DD");
+        this.presenceService.deleteMatchPresences(matchDate).subscribe();
         this.matchPresences.labels.splice(index, 1);
         this.matchPresences.presences.forEach(presence => presence.presenceTypes.splice(index, 1));
       }

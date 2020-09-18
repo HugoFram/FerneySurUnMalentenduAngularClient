@@ -36,5 +36,18 @@ export class PresenceService {
 
   getMatchPresences(): Observable<PresenceMatchDbFormat[]> {
     return this.http.get<PresenceMatchDbFormat[]>(baseURL + "match-presences").pipe(catchError(this.processHttpMsgService.handleError));
-  } 
+  }
+
+  postMatchPresences(presences: PresenceMatchDbFormat[], matchDate: string): Observable<PresenceMatchDbFormat[]> {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    };
+    return this.http.post<PresenceMatchDbFormat[]>(baseURL + "match-presences/" + matchDate, presences, httpOptions).pipe(catchError(this.processHttpMsgService.handleError));
+  }
+
+  deleteMatchPresences(matchDate: string): Observable<{}> {
+    return this.http.delete(baseURL + "match-presences/" + matchDate).pipe(catchError(this.processHttpMsgService.handleError));
+  }
 }

@@ -78,6 +78,10 @@ export class AddMatchComponent implements OnInit {
     });
 
     this.presences = this.matchPresences.presences.map(presence => presence.player);
+    if (this.presences.length == 0) {
+      this.presences = this.data.players.map(player => player.firstname)
+    }
+
     this.addPresenceCheckboxes();
     this.addPresenceWithoutPlayingCheckboxes();
 

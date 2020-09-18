@@ -50,6 +50,10 @@ export class AddTrainingComponent implements OnInit {
     });
 
     this.presences = this.trainingPresences.presences.map(presence => presence.player);
+    if (this.presences.length == 0) {
+      this.presences = this.data.players.map(player => player.firstname)
+    }
+    
     this.addCheckboxes()
 
     this.trainingForm.controls.date.valueChanges.subscribe(data => {
