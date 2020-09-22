@@ -137,12 +137,14 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
     this.selectedRoom = this.rooms.filter((room) => room.address === match.place)[0];
     this.homeTeam = match.homeOrVisitor == "Domicile" ? "Ferney sur un malentendu" : match.opponent;
     this.map = this.mapService.refreshMap(this.map, this.selectedRoom.latitude, this.selectedRoom.longitude, this.homeTeam);
-    this.matchAvailability = this.matchAvailabilities.filter((matchAv) => matchAv.matchNum == match.matchNum)[0];
+    if (this.matchAvailabilities) {
+      this.matchAvailability = this.matchAvailabilities.filter((matchAv) => matchAv.matchNum == match.matchNum)[0];
 
-    if (this.matchAvailability && this.matchAvailability.availabilities.length > 0) {
-      this.availabilityTableData = this.matchAvailability.availabilities.slice();
-    } else {
-      this.availabilityTableData = null;
+      if (this.matchAvailability && this.matchAvailability.availabilities.length > 0) {
+        this.availabilityTableData = this.matchAvailability.availabilities.slice();
+      } else {
+        this.availabilityTableData = null;
+      }
     }
   }
 
