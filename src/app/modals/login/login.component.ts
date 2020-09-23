@@ -25,7 +25,6 @@ export class LoginComponent implements OnInit {
       playerName: [data ? data.initialPlayerName : "-", Validators.minLength(2)]
     });
     this.playerService.getPlayers().subscribe(players => {
-      console.log(players);
       this.players = players;
     }, errmess => this.errMess = <any>errmess);
     //this.playerForm.valueChanges.subscribe(data => this.onValueChanged(data));
@@ -36,7 +35,6 @@ export class LoginComponent implements OnInit {
   ngOnInit() { }
 
   onSubmit() {
-    console.log('Player: ', this.selectedPlayer);
     this.selectedPlayer = this.playerForm.value.playerName;
     this.playerService.setLoggedPlayer(this.selectedPlayer);
     this.dialogRef.close();

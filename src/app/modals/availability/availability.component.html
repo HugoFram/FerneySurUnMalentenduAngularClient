@@ -1,6 +1,6 @@
 <h1 mat-dialog-title>Disponibilité</h1>
 
-<form [formGroup] = "availabilityForm" (ngSubmit) = "onSubmit()">
+<form [formGroup] = "availabilityForm" (ngSubmit) = "onSubmit()" *ngIf = "availabilityForm">
   <mat-dialog-content>
     <mat-form-field>
       <mat-select placeholder = "Poste" formControlName = "role" color = "primary">

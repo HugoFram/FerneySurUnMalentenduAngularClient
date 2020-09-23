@@ -20,6 +20,7 @@ import { MatchAvailabilityService } from '../services/match-availability.service
 import { MatchService } from '../services/match.service';
 import { RoomService } from '../services/room.service';
 import { PlayerService } from '../services/player.service';
+import { PresenceService } from '../services/presence.service';
 
 @Component({
   selector: 'app-next-match',
@@ -29,6 +30,7 @@ import { PlayerService } from '../services/player.service';
 export class NextMatchComponent implements OnInit, AfterViewInit {
 
   nextMatches: NextMatch[];
+  selectedMatch: NextMatch;
   selectedRoom: Room;
   homeTeam: string;
   matchAvailabilities: MatchAvailability[];
@@ -40,13 +42,16 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
   availabilityErrMess: string;
   matchErrMess: string;
   roomErrMess: string;
+  playerErrMess: string;
+  trainingPresenceErrMess: string;
+  matchPresenceErrMess: string;
 
   @ViewChild(MatSort) sort: MatSort;
 
   private map;
 
   constructor(private dialog: MatDialog, private mapService: MapService, private matchAvailabilityService: MatchAvailabilityService, 
-              private matchService: MatchService, private roomService: RoomService, private playerService: PlayerService) {}
+              private matchService: MatchService, private roomService: RoomService, private playerService: PlayerService, private presenceService: PresenceService) {}
 
   ngOnInit() {
     this.matchAvailabilityService.getMatchAvailabilities().subscribe(availabilities => {
@@ -63,17 +68,20 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
           }
         }
         let av = new Availability();
-        let pl = this.playerService.getPlayer(availability.name);
-        if (pl) {
-          av = {
-            player: pl,
-            availabilityType: availability.availability,
-            trainingPresence: availability.trainingPresence,
-            matchPresence: availability.matchPresence,
-            selection: availability.selected
-          };
-          match_availabilities[index].availabilities.push(av);
-        }
+        let pl: Player;
+        this.playerService.getPlayer(this.loggedPlayer).subscribe(player => {
+          pl = player;
+          if (pl) {
+            av = {
+              player: pl,
+              availabilityType: availability.availability,
+              trainingPresence: availability.trainingPresence,
+              matchPresence: availability.matchPresence,
+              selection: availability.selected
+            };
+            match_availabilities[index].availabilities.push(av);
+          }
+        }, errmess => this.matchErrMess = <any>errmess);
       });
 
       if (match_availabilities.length > 0) {
@@ -106,7 +114,8 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
           }).slice(0,3);
 
           if (this.nextMatches.length > 0) {
-            this.selectedRoom = this.rooms.filter((room) => room.address == this.nextMatches[0].place)[0];
+            this.selectedMatch = this.nextMatches[0];
+            this.selectedRoom = this.rooms.filter((room) => room.address == this.selectedMatch.place)[0];
             this.homeTeam = this.nextMatches[0].homeOrVisitor == "Domicile" ? "Ferney sur un malentendu" : this.nextMatches[0].opponent;
   
             if (match_availabilities.length > 0) {
@@ -133,13 +142,12 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
   }
 
   onTabChange($event) {
-    let match = this.nextMatches[$event.index];
-    this.selectedRoom = this.rooms.filter((room) => room.address === match.place)[0];
-    this.homeTeam = match.homeOrVisitor == "Domicile" ? "Ferney sur un malentendu" : match.opponent;
+    this.selectedMatch = this.nextMatches[$event.index];
+    this.selectedRoom = this.rooms.filter((room) => room.address === this.selectedMatch.place)[0];
+    this.homeTeam = this.selectedMatch.homeOrVisitor == "Domicile" ? "Ferney sur un malentendu" : this.selectedMatch.opponent;
     this.map = this.mapService.refreshMap(this.map, this.selectedRoom.latitude, this.selectedRoom.longitude, this.homeTeam);
     if (this.matchAvailabilities) {
-      this.matchAvailability = this.matchAvailabilities.filter((matchAv) => matchAv.matchNum == match.matchNum)[0];
-
+      this.matchAvailability = this.matchAvailabilities.filter((matchAv) => matchAv.matchNum == this.selectedMatch.matchNum)[0];
       if (this.matchAvailability && this.matchAvailability.availabilities.length > 0) {
         this.availabilityTableData = this.matchAvailability.availabilities.slice();
       } else {
@@ -174,7 +182,10 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
       this.dialog.open(LoginComponent);
     }
     else {
-      let existingAvailabity = this.matchAvailability.availabilities.filter(availability => availability.player.firstname == this.loggedPlayer)[0];
+      let existingAvailabity = null;
+      if (this.matchAvailability) {
+        existingAvailabity = this.matchAvailability.availabilities.filter(availability => availability.player.firstname == this.loggedPlayer)[0];
+      }
       let dialogRef;
       if (existingAvailabity) {
         dialogRef = this.dialog.open(AvailabilityComponent, {data: { currentAvailability: existingAvailabity.availabilityType } });
@@ -183,28 +194,67 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
       }
   
       dialogRef.afterClosed().subscribe(result => {
-        let newAvailability: Availability;
-        let existingAvailabity: Availability;
-        let player: Player = this.playerService.getPlayer(this.loggedPlayer);
-        let availabilityId: number;
+        console.log(result);
+        if (result) {
+          let newAvailability: Availability;
+          let existingAvailabity = null;
+          let player: Player;
+          let availabilityId: number;
+          
+          // Retrieve player information
+          this.playerService.getPlayer(this.loggedPlayer).subscribe(pl => {
+            player = pl;
+            player.role = result.data.role;
+            if (this.matchAvailability) {
+              existingAvailabity = this.matchAvailability.availabilities.filter(availability => availability.player.firstname == this.loggedPlayer)[0];
+            }
+            if (existingAvailabity) {
+              this.matchAvailability.availabilities = this.matchAvailability.availabilities.filter(availability =>  availability.player.firstname != this.loggedPlayer);
+            }
+            
+            // Compute Training Presence string
+            this.presenceService.getTrainingPresences().subscribe(presences => {
+              let numTrainings = presences.filter(presence => presence.name == player.firstname).length;
+              let numPresence = presences.filter(presence => presence.name == player.firstname).map(presence => presence.presence == "Présent" ? 1 : 0).reduce((acc, val) => acc += val, 0);
+              let trainingPresence = Math.round(100.0*numPresence / numTrainings) + " % (" + numPresence + "/" + numTrainings + ")";
 
-        player.role = result.data.role;
-        existingAvailabity = this.matchAvailability.availabilities.filter(availability => availability.player.firstname == this.loggedPlayer)[0];
-        console.log(existingAvailabity);
-        if (existingAvailabity) {
-          this.matchAvailability.availabilities = this.matchAvailability.availabilities.filter(availability =>  availability.player.firstname != this.loggedPlayer);
+              // Compute Match Presence string
+              this.presenceService.getMatchPresences().subscribe(presences => {
+                let numMatches = presences.filter(presence => presence.name == player.firstname).length;
+                let numPresence = presences.filter(presence => presence.name == player.firstname).map(presence => presence.presence == "Présent" ? 1 : 0).reduce((acc, val) => acc += val, 0);
+                let matchPresence = Math.round(100.0*numPresence / numMatches) + " % (" + numPresence + "/" + numMatches + ")";
+
+                newAvailability = {
+                  player: player,
+                  availabilityType: result.data.availability,
+                  trainingPresence: trainingPresence,
+                  matchPresence: matchPresence,
+                  selection: "Indeterminé"
+                };
+                if (this.matchAvailability) {
+                  this.matchAvailability.availabilities.push(newAvailability);
+                } else {
+                  this.matchAvailability = new MatchAvailability();
+                  this.matchAvailability.matchNum = this.selectedMatch.matchNum;
+                  this.matchAvailability.availabilities = new Array<Availability>();
+                  this.matchAvailability.availabilities.push(newAvailability);
+                }
+                if (this.matchAvailabilities) {
+                  let index = this.matchAvailabilities.findIndex(matchAv => matchAv.matchNum == this.matchAvailability.matchNum);
+                  if (index != -1) {
+                    this.matchAvailabilities[index] = this.matchAvailability;
+                  } else {
+                    this.matchAvailabilities.push(this.matchAvailability);
+                  }
+                } else {
+                  this.matchAvailabilities = new Array<MatchAvailability>();
+                  this.matchAvailabilities.push(this.matchAvailability);
+                }
+                this.availabilityTableData = this.matchAvailability.availabilities.slice();
+              }, errmess => this.matchPresenceErrMess = <any>errmess);
+            }, errmess => this.trainingPresenceErrMess = <any>errmess);
+          }, errmess => this.matchErrMess = <any>errmess);
         }
-
-        newAvailability = {
-          player: player,
-          availabilityType: result.data.availability,
-          trainingPresence: "61 % (11/18)",
-          matchPresence: "100 % (9/9)",
-          selection: "Indeterminé"
-        };
-        console.log('Data pushed', newAvailability);
-        this.matchAvailability.availabilities.push(newAvailability);
-        this.availabilityTableData = this.matchAvailability.availabilities.slice();
       });
     }
   }

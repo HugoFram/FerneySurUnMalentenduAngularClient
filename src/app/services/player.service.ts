@@ -23,8 +23,8 @@ export class PlayerService {
     return this.http.get<Player[]>(baseURL + "players").pipe(catchError(this.processHttpMsgService.handleError));
   }
 
-  getPlayer(firstname: string): Player {
-    return PLAYERS.filter(player => player.firstname === firstname)[0];
+  getPlayer(firstname: string): Observable<Player> {
+    return this.http.get<Player>(baseURL + "players/" + firstname).pipe(catchError(this.processHttpMsgService.handleError));
   }
 
   setLoggedPlayer(player: string) {

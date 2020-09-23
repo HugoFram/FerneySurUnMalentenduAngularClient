@@ -17,24 +17,23 @@ export class AvailabilityComponent implements OnInit {
   loggedPlayer: string;
   player: Player;
   availabilityForm: FormGroup
+  errMess: String;
 
   constructor(public dialogRef: MatDialogRef<AvailabilityComponent>, private playerService: PlayerService, private formBuild: FormBuilder, 
-              @Optional() @Inject(MAT_DIALOG_DATA) public data: any) { 
-    this.playerService.getLoggedPlayer().subscribe((player) => this.loggedPlayer = player);
-    this.player = playerService.getPlayer(this.loggedPlayer);
+              @Optional() @Inject(MAT_DIALOG_DATA) public data: any) { }
 
-    console.log(this.player);
-    
-    this.availabilityForm = this.formBuild.group({
-      role: this.player.role,
-      availability: this.data.currentAvailability
-    });
+  ngOnInit() {
+    this.playerService.getLoggedPlayer().subscribe((pl) => this.loggedPlayer = pl);
+    this.playerService.getPlayer(this.loggedPlayer).subscribe(pl => {
+      this.player = pl;
+      this.availabilityForm = this.formBuild.group({
+        role: this.player.role,
+        availability: this.data.currentAvailability
+      });
+    }, errmess => this.errMess = <any>errmess);
   }
 
-  ngOnInit() { }
-
   onSubmit() {
-    console.log(this.availabilityForm.value);
     this.dialogRef.close({data: this.availabilityForm.value});
   }
 
