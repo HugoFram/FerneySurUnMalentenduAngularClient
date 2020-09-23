@@ -4,7 +4,7 @@ import { AvailabilityDbFormat } from '../shared/availabilityDbFormat';
 import { MATCH_AVAILABILITIES } from '../shared/matchAvailabilities';
 import { Observable } from 'rxjs';
 import { baseURL } from '../shared/baseurl';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map, catchError } from 'rxjs/operators';
 import { ProcessHTTPMsgService } from '../services/process-httpmsg.service';
 
@@ -21,5 +21,14 @@ export class MatchAvailabilityService {
 
   getMatchAvailability(matchNum: string): MatchAvailability {
     return MATCH_AVAILABILITIES.filter(matchAv => matchAv.matchNum === matchNum)[0];
+  }
+
+  postMatchAvailability(matchNum: string, playerName: string, availability: AvailabilityDbFormat): Observable<AvailabilityDbFormat> {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    };
+    return this.http.post<AvailabilityDbFormat>(baseURL + "availabilities/" + matchNum + "/" + playerName, availability, httpOptions).pipe(catchError(this.processHttpMsgService.handleError));
   }
 }

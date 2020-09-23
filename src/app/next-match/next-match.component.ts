@@ -69,7 +69,7 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
         }
         let av = new Availability();
         let pl: Player;
-        this.playerService.getPlayer(this.loggedPlayer).subscribe(player => {
+        this.playerService.getPlayer(availability.name).subscribe(player => {
           pl = player;
           if (pl) {
             av = {
@@ -251,6 +251,16 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
                   this.matchAvailabilities.push(this.matchAvailability);
                 }
                 this.availabilityTableData = this.matchAvailability.availabilities.slice();
+
+                this.matchAvailabilityService.postMatchAvailability(this.selectedMatch.matchNum, player.firstname, {
+                  matchNum: this.selectedMatch.matchNum,
+                  name: player.firstname,
+                  availability: result.data.availability,
+                  role: player.role,
+                  selected: "Indeterminé",
+                  trainingPresence: trainingPresence,
+                  matchPresence: matchPresence
+                }).subscribe();
               }, errmess => this.matchPresenceErrMess = <any>errmess);
             }, errmess => this.trainingPresenceErrMess = <any>errmess);
           }, errmess => this.matchErrMess = <any>errmess);
