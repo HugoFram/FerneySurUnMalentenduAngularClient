@@ -11,7 +11,7 @@ import { Match  } from '../shared/match';
 import { NextMatch  } from '../shared/nextMatch';
 import { MatchAvailability } from '../shared/matchAvailability';
 import { Availability } from '../shared/availability';
-import { AvailabilityDbFormat } from '../shared/availabilityDbFormat';
+import { PastMatchAvailability } from '../shared/pastMatchAvailability';
 import { Room } from '../shared/room';
 import { Player } from '../shared/player';
 
@@ -45,6 +45,7 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
   playerErrMess: string;
   trainingPresenceErrMess: string;
   matchPresenceErrMess: string;
+  matchPastAvailabilityErrMess: string;
 
   @ViewChild(MatSort) sort: MatSort;
 
@@ -56,84 +57,85 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.matchAvailabilityService.getMatchAvailabilities().subscribe(availabilities => {
       let match_availabilities = new Array<MatchAvailability>();
-      
-      availabilities.forEach(availability => {
-        let index = match_availabilities.findIndex(matchav => matchav.matchNum == availability.matchNum);
-        if (index == -1) {
-          match_availabilities.push(new MatchAvailability())
-          index = match_availabilities.length - 1;
-          match_availabilities[index] = {
-            matchNum: availability.matchNum,
-            availabilities: new Array<Availability>()
-          }
-        }
-        let av = new Availability();
-        let pl: Player;
-        this.playerService.getPlayer(availability.name).subscribe(player => {
-          pl = player;
-          if (pl) {
-            av = {
-              player: pl,
-              availabilityType: availability.availability,
-              trainingPresence: availability.trainingPresence,
-              matchPresence: availability.matchPresence,
-              selection: availability.selected
-            };
-            match_availabilities[index].availabilities.push(av);
-          }
-        }, errmess => this.matchErrMess = <any>errmess);
-      });
 
-      if (match_availabilities.length > 0) {
-        this.matchAvailabilities = match_availabilities;
-        this.availabilityTableData = this.matchAvailabilities[0].availabilities.slice();
-      }
-      this.matchService.getMatches().subscribe(matches => {
-        this.matches = matches.map(match => {
-          match.date = new Date(match.date);
-          return match;
-        });
-
-        this.roomService.getRooms().subscribe(rooms => {
-          this.rooms = rooms;
-
-          this.nextMatches = this.matches.sort((matchA, matchB) => Number(matchA.date) - Number(matchB.date)).filter((match) => (match.date > new Date()) && (match.visitor == "Ferney sur un malentendu" || match.home == "Ferney sur un malentendu"))
-          .map((match) => {
-            let nextMatch: NextMatch;
-            nextMatch = {
-              matchNum: match.id,
-              opponent: match.visitor == "Ferney sur un malentendu" ? match.home : match.visitor,
-              date: match.date,
-              hour: match.hour,
-              homeOrVisitor: match.visitor == "Ferney sur un malentendu" ? "Extérieur" : "Domicile",
-              place: match.place,
-              opponentRank: "Classé 5e",
-              previousEncounter: "Première Rencontre"
-            };
-            return nextMatch;
-          }).slice(0,3);
-
-          if (this.nextMatches.length > 0) {
-            this.selectedMatch = this.nextMatches[0];
-            this.selectedRoom = this.rooms.filter((room) => room.address == this.selectedMatch.place)[0];
-            this.homeTeam = this.nextMatches[0].homeOrVisitor == "Domicile" ? "Ferney sur un malentendu" : this.nextMatches[0].opponent;
-  
-            if (match_availabilities.length > 0) {
-              this.matchAvailability = this.matchAvailabilities.filter((matchAv) => matchAv.matchNum == this.nextMatches[0].matchNum)[0];
-    
-              if (this.matchAvailability && this.matchAvailability.availabilities.length > 0) {
-                this.availabilityTableData = this.matchAvailability.availabilities.slice();
-              } else {
-                this.availabilityTableData = null;
-              }
+      this.matchAvailabilityService.getPastMatchAvailabilities().subscribe(pastAvailabilities => {
+        availabilities.forEach(availability => {
+          let index = match_availabilities.findIndex(matchav => matchav.matchNum == availability.matchNum);
+          if (index == -1) {
+            match_availabilities.push(new MatchAvailability())
+            index = match_availabilities.length - 1;
+            match_availabilities[index] = {
+              matchNum: availability.matchNum,
+              availabilities: new Array<Availability>()
             }
-  
-            this.playerService.getLoggedPlayer().subscribe((player) => this.loggedPlayer = player);
-  
-            this.map = this.mapService.initMap(this.map, this.selectedRoom.latitude, this.selectedRoom.longitude, this.homeTeam);
           }
-        }, errmess => this.roomErrMess = <any>errmess);
-      }, errmess => this.matchErrMess = <any>errmess);
+          let av = new Availability();
+          this.playerService.getPlayer(availability.name).subscribe(player => {
+            if (player) {
+              av = {
+                player: player,
+                availabilityType: availability.availability,
+                trainingPresence: availability.trainingPresence,
+                matchPresence: availability.matchPresence,
+                pastAvailability: pastAvailabilities.filter(pastAv => pastAv.name == player.firstname)[0].pastMatchesAvailability,
+                selection: availability.selected
+              };
+              match_availabilities[index].availabilities.push(av);
+            }
+          }, errmess => this.matchErrMess = <any>errmess);
+        });
+  
+        if (match_availabilities.length > 0) {
+          this.matchAvailabilities = match_availabilities;
+          this.availabilityTableData = this.matchAvailabilities[0].availabilities.slice();
+        }
+        this.matchService.getMatches().subscribe(matches => {
+          this.matches = matches.map(match => {
+            match.date = new Date(match.date);
+            return match;
+          });
+  
+          this.roomService.getRooms().subscribe(rooms => {
+            this.rooms = rooms;
+  
+            this.nextMatches = this.matches.sort((matchA, matchB) => Number(matchA.date) - Number(matchB.date)).filter((match) => (match.date > new Date()) && (match.visitor == "Ferney sur un malentendu" || match.home == "Ferney sur un malentendu"))
+            .map((match) => {
+              let nextMatch: NextMatch;
+              nextMatch = {
+                matchNum: match.id,
+                opponent: match.visitor == "Ferney sur un malentendu" ? match.home : match.visitor,
+                date: match.date,
+                hour: match.hour,
+                homeOrVisitor: match.visitor == "Ferney sur un malentendu" ? "Extérieur" : "Domicile",
+                place: match.place,
+                opponentRank: "Classé 5e",
+                previousEncounter: "Première Rencontre"
+              };
+              return nextMatch;
+            }).slice(0,3);
+  
+            if (this.nextMatches.length > 0) {
+              this.selectedMatch = this.nextMatches[0];
+              this.selectedRoom = this.rooms.filter((room) => room.address == this.selectedMatch.place)[0];
+              this.homeTeam = this.nextMatches[0].homeOrVisitor == "Domicile" ? "Ferney sur un malentendu" : this.nextMatches[0].opponent;
+    
+              if (match_availabilities.length > 0) {
+                this.matchAvailability = this.matchAvailabilities.filter((matchAv) => matchAv.matchNum == this.nextMatches[0].matchNum)[0];
+      
+                if (this.matchAvailability && this.matchAvailability.availabilities.length > 0) {
+                  this.availabilityTableData = this.matchAvailability.availabilities.slice();
+                } else {
+                  this.availabilityTableData = null;
+                }
+              }
+    
+              this.playerService.getLoggedPlayer().subscribe((player) => this.loggedPlayer = player);
+    
+              this.map = this.mapService.initMap(this.map, this.selectedRoom.latitude, this.selectedRoom.longitude, this.homeTeam);
+            }
+          }, errmess => this.roomErrMess = <any>errmess);
+        }, errmess => this.matchErrMess = <any>errmess);
+      }, errmess => this.matchPastAvailabilityErrMess = <any>errmess);
     }, errmess => this.availabilityErrMess = <any>errmess);
   }
 
@@ -171,6 +173,7 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
         case 'playerRole': return compare(a.player.role, b.player.role, isAsc);
         case 'trainingPresence': return compare(a.trainingPresence, b.trainingPresence, isAsc);
         case 'matchPresence': return compare(a.matchPresence, b.matchPresence, isAsc);
+        case 'pastAvailability': return compare(a.pastAvailability, b.pastAvailability, isAsc);
         case 'selection': return compare(a.selection, b.selection, isAsc);
         default: return 0;
       }
@@ -194,7 +197,6 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
       }
   
       dialogRef.afterClosed().subscribe(result => {
-        console.log(result);
         if (result) {
           let newAvailability: Availability;
           let existingAvailabity = null;
@@ -224,43 +226,46 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
                 let numPresence = presences.filter(presence => presence.name == player.firstname).map(presence => presence.presence == "Présent" ? 1 : 0).reduce((acc, val) => acc += val, 0);
                 let matchPresence = Math.round(100.0*numPresence / numMatches) + " % (" + numPresence + "/" + numMatches + ")";
 
-                newAvailability = {
-                  player: player,
-                  availabilityType: result.data.availability,
-                  trainingPresence: trainingPresence,
-                  matchPresence: matchPresence,
-                  selection: "Indeterminé"
-                };
-                if (this.matchAvailability) {
-                  this.matchAvailability.availabilities.push(newAvailability);
-                } else {
-                  this.matchAvailability = new MatchAvailability();
-                  this.matchAvailability.matchNum = this.selectedMatch.matchNum;
-                  this.matchAvailability.availabilities = new Array<Availability>();
-                  this.matchAvailability.availabilities.push(newAvailability);
-                }
-                if (this.matchAvailabilities) {
-                  let index = this.matchAvailabilities.findIndex(matchAv => matchAv.matchNum == this.matchAvailability.matchNum);
-                  if (index != -1) {
-                    this.matchAvailabilities[index] = this.matchAvailability;
+                this.matchAvailabilityService.getPlayerPastMatchAvailability(player.firstname).subscribe(pastAvailability => {
+                  newAvailability = {
+                    player: player,
+                    availabilityType: result.data.availability,
+                    trainingPresence: trainingPresence,
+                    matchPresence: matchPresence,
+                    pastAvailability: pastAvailability.pastMatchesAvailability,
+                    selection: "Indeterminé"
+                  };
+                  if (this.matchAvailability) {
+                    this.matchAvailability.availabilities.push(newAvailability);
                   } else {
+                    this.matchAvailability = new MatchAvailability();
+                    this.matchAvailability.matchNum = this.selectedMatch.matchNum;
+                    this.matchAvailability.availabilities = new Array<Availability>();
+                    this.matchAvailability.availabilities.push(newAvailability);
+                  }
+                  if (this.matchAvailabilities) {
+                    let index = this.matchAvailabilities.findIndex(matchAv => matchAv.matchNum == this.matchAvailability.matchNum);
+                    if (index != -1) {
+                      this.matchAvailabilities[index] = this.matchAvailability;
+                    } else {
+                      this.matchAvailabilities.push(this.matchAvailability);
+                    }
+                  } else {
+                    this.matchAvailabilities = new Array<MatchAvailability>();
                     this.matchAvailabilities.push(this.matchAvailability);
                   }
-                } else {
-                  this.matchAvailabilities = new Array<MatchAvailability>();
-                  this.matchAvailabilities.push(this.matchAvailability);
-                }
-                this.availabilityTableData = this.matchAvailability.availabilities.slice();
-
-                this.matchAvailabilityService.postMatchAvailability(this.selectedMatch.matchNum, player.firstname, {
-                  matchNum: this.selectedMatch.matchNum,
-                  name: player.firstname,
-                  availability: result.data.availability,
-                  role: player.role,
-                  selected: "Indeterminé",
-                  trainingPresence: trainingPresence,
-                  matchPresence: matchPresence
-                }).subscribe();
+                  this.availabilityTableData = this.matchAvailability.availabilities.slice();
+  
+                  this.matchAvailabilityService.postMatchAvailability(this.selectedMatch.matchNum, player.firstname, {
+                    matchNum: this.selectedMatch.matchNum,
+                    name: player.firstname,
+                    availability: result.data.availability,
+                    role: player.role,
+                    selected: "Indeterminé",
+                    trainingPresence: trainingPresence,
+                    matchPresence: matchPresence
+                  }).subscribe();
+                }, errmess => this.matchPastAvailabilityErrMess = <any>errmess);
               }, errmess => this.matchPresenceErrMess = <any>errmess);
             }, errmess => this.trainingPresenceErrMess = <any>errmess);
           }, errmess => this.matchErrMess = <any>errmess);

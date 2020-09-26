@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatchAvailability } from '../shared/matchAvailability';
 import { AvailabilityDbFormat } from '../shared/availabilityDbFormat';
-import { MATCH_AVAILABILITIES } from '../shared/matchAvailabilities';
+import { PastMatchAvailability } from '../shared/pastMatchAvailability';
 import { Observable } from 'rxjs';
 import { baseURL } from '../shared/baseurl';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -19,10 +19,6 @@ export class MatchAvailabilityService {
     return this.http.get<AvailabilityDbFormat[]>(baseURL + "availabilities").pipe(catchError(this.processHttpMsgService.handleError));
   }
 
-  getMatchAvailability(matchNum: string): MatchAvailability {
-    return MATCH_AVAILABILITIES.filter(matchAv => matchAv.matchNum === matchNum)[0];
-  }
-
   postMatchAvailability(matchNum: string, playerName: string, availability: AvailabilityDbFormat): Observable<AvailabilityDbFormat> {
     const httpOptions = {
       headers: new HttpHeaders({
@@ -30,5 +26,13 @@ export class MatchAvailabilityService {
       })
     };
     return this.http.post<AvailabilityDbFormat>(baseURL + "availabilities/" + matchNum + "/" + playerName, availability, httpOptions).pipe(catchError(this.processHttpMsgService.handleError));
+  }
+
+  getPastMatchAvailabilities(): Observable<PastMatchAvailability[]> {
+    return this.http.get<PastMatchAvailability[]>(baseURL + "past-availabilities").pipe(catchError(this.processHttpMsgService.handleError));
+  }
+
+  getPlayerPastMatchAvailability(playerName: string): Observable<PastMatchAvailability> {
+    return this.http.get<PastMatchAvailability>(baseURL + "past-availabilities/" + playerName).pipe(catchError(this.processHttpMsgService.handleError));
   }
 }

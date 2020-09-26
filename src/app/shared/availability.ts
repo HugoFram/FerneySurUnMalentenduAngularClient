@@ -5,5 +5,6 @@ export class Availability {
     availabilityType: string;
     trainingPresence: string;
     matchPresence: string;
+    pastAvailability: string;
     selection: string;
 }
