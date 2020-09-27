@@ -61,89 +61,92 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
       let match_availabilities = new Array<MatchAvailability>();
 
       this.matchAvailabilityService.getPastMatchAvailabilities().subscribe(pastAvailabilities => {
-        availabilities.forEach(availability => {
-          let index = match_availabilities.findIndex(matchav => matchav.matchNum == availability.matchNum);
-          if (index == -1) {
-            match_availabilities.push(new MatchAvailability())
-            index = match_availabilities.length - 1;
-            match_availabilities[index] = {
-              matchNum: availability.matchNum,
-              availabilities: new Array<Availability>()
-            }
-          }
-          let av = new Availability();
-          this.playerService.getPlayer(availability.name).subscribe(player => {
-            if (player) {
-              av = {
-                player: {
-                  firstname: player.firstname,
-                  lastname: player.lastname,
-                  role: availability.role,
-                  email: player.email
-                },
-                availabilityType: availability.availability,
-                trainingPresence: availability.trainingPresence,
-                matchPresence: availability.matchPresence,
-                pastAvailability: pastAvailabilities.filter(pastAv => pastAv.name == player.firstname)[0].pastMatchesAvailability,
-                selection: availability.selected
-              };
-              match_availabilities[index].availabilities.push(av);
-            }
-          }, errmess => this.matchErrMess = <any>errmess);
-        });
-  
-        if (match_availabilities.length > 0) {
-          this.matchAvailabilities = match_availabilities;
-          this.availabilityTableData = this.matchAvailabilities[0].availabilities.slice();
-        }
-        this.matchService.getMatches().subscribe(matches => {
-          this.matches = matches.map(match => {
-            match.date = new Date(match.date);
-            return match;
-          });
-  
-          this.roomService.getRooms().subscribe(rooms => {
-            this.rooms = rooms;
-  
-            this.nextMatches = this.matches.sort((matchA, matchB) => Number(matchA.date) - Number(matchB.date)).filter((match) => (match.date > new Date()) && (match.visitor == "Ferney sur un malentendu" || match.home == "Ferney sur un malentendu"))
-            .map((match) => {
-              let nextMatch: NextMatch;
-              nextMatch = {
-                matchNum: match.id,
-                opponent: match.visitor == "Ferney sur un malentendu" ? match.home : match.visitor,
-                date: match.date,
-                hour: match.hour,
-                homeOrVisitor: match.visitor == "Ferney sur un malentendu" ? "Extérieur" : "Domicile",
-                place: match.place,
-                opponentRank: "Classé 5e",
-                previousEncounter: "Première Rencontre"
-              };
-              return nextMatch;
-            }).slice(0,3);
-  
-            if (this.nextMatches.length > 0) {
-              this.selectedMatch = this.nextMatches[0];
-              this.selectedRoom = this.rooms.filter((room) => room.address == this.selectedMatch.place)[0];
-              this.homeTeam = this.nextMatches[0].homeOrVisitor == "Domicile" ? "Ferney sur un malentendu" : this.nextMatches[0].opponent;
-    
-              if (match_availabilities.length > 0) {
-                this.matchAvailability = this.matchAvailabilities.filter((matchAv) => matchAv.matchNum == this.nextMatches[0].matchNum)[0];
-      
-                if (this.matchAvailability && this.matchAvailability.availabilities.length > 0) {
-                  this.availabilityTableData = this.matchAvailability.availabilities.slice();
-                  this.matchAvailability.availabilities.forEach(availability => this.checkedCheckboxes[availability.player.firstname] = availability.selection == "Sélectionné");
-                  this.sortData({active: "availabilityType", direction: "asc"});
-                } else {
-                  this.availabilityTableData = null;
-                }
+        this.playerService.getPlayers().subscribe(players => {
+          availabilities.forEach(availability => {
+            let index = match_availabilities.findIndex(matchav => matchav.matchNum == availability.matchNum);
+            if (index == -1) {
+              match_availabilities.push(new MatchAvailability())
+              index = match_availabilities.length - 1;
+              match_availabilities[index] = {
+                matchNum: availability.matchNum,
+                availabilities: new Array<Availability>()
               }
-    
-              this.playerService.getLoggedPlayer().subscribe((player) => this.loggedPlayer = player);
-    
-              this.map = this.mapService.initMap(this.map, this.selectedRoom.latitude, this.selectedRoom.longitude, this.homeTeam);
             }
-          }, errmess => this.roomErrMess = <any>errmess);
-        }, errmess => this.matchErrMess = <any>errmess);
+            let av = new Availability();
+            if (players) {
+              let player = players.filter(player => player.firstname == availability.name)[0];
+              if (player) {
+                av = {
+                  player: {
+                    firstname: player.firstname,
+                    lastname: player.lastname,
+                    role: availability.role,
+                    email: player.email
+                  },
+                  availabilityType: availability.availability,
+                  trainingPresence: availability.trainingPresence,
+                  matchPresence: availability.matchPresence,
+                  pastAvailability: pastAvailabilities.filter(pastAv => pastAv.name == player.firstname)[0].pastMatchesAvailability,
+                  selection: availability.selected
+                };
+                match_availabilities[index].availabilities.push(av);
+              }
+            }
+          });
+    
+          if (match_availabilities.length > 0) {
+            this.matchAvailabilities = match_availabilities;
+            this.availabilityTableData = this.matchAvailabilities[0].availabilities.slice();
+          }
+          this.matchService.getMatches().subscribe(matches => {
+            this.matches = matches.map(match => {
+              match.date = new Date(match.date);
+              return match;
+            });
+    
+            this.roomService.getRooms().subscribe(rooms => {
+              this.rooms = rooms;
+    
+              this.nextMatches = this.matches.sort((matchA, matchB) => Number(matchA.date) - Number(matchB.date)).filter((match) => (match.date > new Date()) && (match.visitor == "Ferney sur un malentendu" || match.home == "Ferney sur un malentendu"))
+              .map((match) => {
+                let nextMatch: NextMatch;
+                nextMatch = {
+                  matchNum: match.id,
+                  opponent: match.visitor == "Ferney sur un malentendu" ? match.home : match.visitor,
+                  date: match.date,
+                  hour: match.hour,
+                  homeOrVisitor: match.visitor == "Ferney sur un malentendu" ? "Extérieur" : "Domicile",
+                  place: match.place,
+                  opponentRank: "Classé 5e",
+                  previousEncounter: "Première Rencontre"
+                };
+                return nextMatch;
+              }).slice(0,3);
+    
+              if (this.nextMatches.length > 0) {
+                this.selectedMatch = this.nextMatches[0];
+                this.selectedRoom = this.rooms.filter((room) => room.address == this.selectedMatch.place)[0];
+                this.homeTeam = this.nextMatches[0].homeOrVisitor == "Domicile" ? "Ferney sur un malentendu" : this.nextMatches[0].opponent;
+      
+                if (match_availabilities.length > 0) {
+                  this.matchAvailability = this.matchAvailabilities.filter((matchAv) => matchAv.matchNum == this.nextMatches[0].matchNum)[0];
+        
+                  if (this.matchAvailability && this.matchAvailability.availabilities.length > 0) {
+                    this.availabilityTableData = this.matchAvailability.availabilities.slice();
+                    this.matchAvailability.availabilities.forEach(availability => this.checkedCheckboxes[availability.player.firstname] = availability.selection == "Sélectionné");
+                    this.sortData({active: "availabilityType", direction: "asc"});
+                  } else {
+                    this.availabilityTableData = null;
+                  }
+                }
+      
+                this.playerService.getLoggedPlayer().subscribe((player) => this.loggedPlayer = player);
+      
+                this.map = this.mapService.initMap(this.map, this.selectedRoom.latitude, this.selectedRoom.longitude, this.homeTeam);
+              }
+            }, errmess => this.roomErrMess = <any>errmess);
+          }, errmess => this.matchErrMess = <any>errmess);
+        }, errmess => this.playerErrMess = <any>errmess);
       }, errmess => this.matchPastAvailabilityErrMess = <any>errmess);
     }, errmess => this.availabilityErrMess = <any>errmess);
   }
