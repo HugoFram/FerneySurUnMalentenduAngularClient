@@ -14,8 +14,6 @@ import { PlayerService } from '../../services/player.service';
 })
 export class AvailabilityComponent implements OnInit {
 
-  loggedPlayer: string;
-  player: Player;
   availabilityForm: FormGroup
   errMess: String;
 
@@ -23,12 +21,19 @@ export class AvailabilityComponent implements OnInit {
               @Optional() @Inject(MAT_DIALOG_DATA) public data: any) { }
 
   ngOnInit() {
-    this.playerService.getLoggedPlayer().subscribe((pl) => this.loggedPlayer = pl);
-    this.playerService.getPlayer(this.loggedPlayer).subscribe(pl => {
-      this.player = pl;
+    let selectedPlayer;
+    let availabilityType;
+    if (this.data.currentAvailability) {
+      selectedPlayer = this.data.currentAvailability.player.firstname;
+      availabilityType = this.data.currentAvailability.availabilityType;
+    } else {
+      this.playerService.getLoggedPlayer().subscribe((pl) => selectedPlayer = pl);
+      availabilityType = "Disponible";
+    }
+    this.playerService.getPlayer(selectedPlayer).subscribe(player => {
       this.availabilityForm = this.formBuild.group({
-        role: this.player.role,
-        availability: this.data.currentAvailability
+        role: this.data.currentAvailability ? this.data.currentAvailability.player.role : player.role,
+        availability: availabilityType
       });
     }, errmess => this.errMess = <any>errmess);
   }

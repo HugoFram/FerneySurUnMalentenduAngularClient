@@ -100,37 +100,37 @@
 
       <ng-container matColumnDef="playerName">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Nom </th>
-        <td mat-cell *matCellDef="let element"> {{element.player.firstname}} </td>
+        <td mat-cell *matCellDef="let element" (click) = 'onAvailabilityRowClick($event)'> {{element.player.firstname}} </td>
       </ng-container>
 
       <ng-container matColumnDef="availabilityType">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Disponibilité </th>
-        <td mat-cell *matCellDef="let element"> {{element.availabilityType}} </td>
+        <td mat-cell *matCellDef="let element" (click) = 'onAvailabilityRowClick($event)'> {{element.availabilityType}} </td>
       </ng-container>
 
       <ng-container matColumnDef="playerRole">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Poste </th>
-        <td mat-cell *matCellDef="let element"> {{element.player.role}} </td>
+        <td mat-cell *matCellDef="let element" (click) = 'onAvailabilityRowClick($event)'> {{element.player.role}} </td>
       </ng-container>
 
       <ng-container matColumnDef="trainingPresence">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Présence à l'entraînement </th>
-        <td mat-cell *matCellDef="let element"> {{element.trainingPresence}} </td>
+        <td mat-cell *matCellDef="let element" (click) = 'onAvailabilityRowClick($event)'> {{element.trainingPresence}} </td>
       </ng-container>
 
       <ng-container matColumnDef="matchPresence">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Présence aux matchs </th>
-        <td mat-cell *matCellDef="let element"> {{element.matchPresence}} </td>
+        <td mat-cell *matCellDef="let element" (click) = 'onAvailabilityRowClick($event)'> {{element.matchPresence}} </td>
       </ng-container>
 
       <ng-container matColumnDef="pastMatchAvailability">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Disponibilité aux matchs </th>
-        <td mat-cell *matCellDef="let element"> {{element.pastAvailability}} </td>
+        <td mat-cell *matCellDef="let element" (click) = 'onAvailabilityRowClick($event)'> {{element.pastAvailability}} </td>
       </ng-container>
 
       <ng-container matColumnDef="selection">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Sélectionné </th>
-        <td mat-cell *matCellDef="let element"> {{element.selection}} </td>
+        <td mat-cell *matCellDef="let element" (click) = 'onAvailabilityRowClick($event)'> {{element.selection}} </td>
       </ng-container>
 
       <ng-container matColumnDef="decision">

@@ -75,7 +75,12 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
           this.playerService.getPlayer(availability.name).subscribe(player => {
             if (player) {
               av = {
-                player: player,
+                player: {
+                  firstname: player.firstname,
+                  lastname: player.lastname,
+                  role: availability.role,
+                  email: player.email
+                },
                 availabilityType: availability.availability,
                 trainingPresence: availability.trainingPresence,
                 matchPresence: availability.matchPresence,
@@ -191,21 +196,21 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
       this.dialog.open(LoginComponent);
     }
     else {
-      let existingAvailabity = null;
+      let existingAvailability = null;
       if (this.matchAvailability) {
-        existingAvailabity = this.matchAvailability.availabilities.filter(availability => availability.player.firstname == this.loggedPlayer)[0];
+        existingAvailability = this.matchAvailability.availabilities.filter(availability => availability.player.firstname == this.loggedPlayer)[0];
       }
       let dialogRef;
-      if (existingAvailabity) {
-        dialogRef = this.dialog.open(AvailabilityComponent, {data: { currentAvailability: existingAvailabity.availabilityType } });
+      if (existingAvailability) {
+        dialogRef = this.dialog.open(AvailabilityComponent, {data: { currentAvailability: existingAvailability } });
       } else {
-        dialogRef = this.dialog.open(AvailabilityComponent, {data: { currentAvailability: "Disponible" } });
+        dialogRef = this.dialog.open(AvailabilityComponent, {data: { currentAvailability: null } });
       }
   
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           let newAvailability: Availability;
-          let existingAvailabity = null;
+          let existingAvailability = null;
           let player: Player;
           let availabilityId: number;
           
@@ -214,9 +219,9 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
             player = pl;
             player.role = result.data.role;
             if (this.matchAvailability) {
-              existingAvailabity = this.matchAvailability.availabilities.filter(availability => availability.player.firstname == this.loggedPlayer)[0];
+              existingAvailability = this.matchAvailability.availabilities.filter(availability => availability.player.firstname == this.loggedPlayer)[0];
             }
-            if (existingAvailabity) {
+            if (existingAvailability) {
               this.matchAvailability.availabilities = this.matchAvailability.availabilities.filter(availability =>  availability.player.firstname != this.loggedPlayer);
             }
             
@@ -234,7 +239,12 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
 
                 this.matchAvailabilityService.getPlayerPastMatchAvailability(player.firstname).subscribe(pastAvailability => {
                   newAvailability = {
-                    player: player,
+                    player: {
+                      firstname: player.firstname,
+                      lastname: player.lastname,
+                      role: result.data.role,
+                      email: player.email
+                    },
                     availabilityType: result.data.availability,
                     trainingPresence: trainingPresence,
                     matchPresence: matchPresence,
@@ -268,7 +278,7 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
                     matchNum: this.selectedMatch.matchNum,
                     name: player.firstname,
                     availability: result.data.availability,
-                    role: player.role,
+                    role: result.data.role,
                     selected: "Indeterminé",
                     trainingPresence: trainingPresence,
                     matchPresence: matchPresence
@@ -280,6 +290,45 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
         }
       });
     }
+  }
+
+  onAvailabilityRowClick(event: any) {
+    let currentAvailability = this.matchAvailability.availabilities.filter(availability => availability.player.firstname == event.path[1].children[0].innerText)[0];
+    let dialogRef = this.dialog.open(AvailabilityComponent, {data: { currentAvailability: currentAvailability } });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        let newAvailability: Availability = {
+          player: {
+            firstname: currentAvailability.player.firstname,
+            lastname: currentAvailability.player.lastname,
+            role: result.data.role,
+            email: currentAvailability.player.email
+          },
+          availabilityType: result.data.availability,
+          trainingPresence: currentAvailability.trainingPresence,
+          matchPresence: currentAvailability.matchPresence,
+          pastAvailability: currentAvailability.pastAvailability,
+          selection: currentAvailability.selection
+        };
+        this.matchAvailability.availabilities = this.matchAvailability.availabilities.filter(availability =>  availability.player.firstname != currentAvailability.player.firstname);
+        this.matchAvailability.availabilities.push(newAvailability);
+        let index = this.matchAvailabilities.findIndex(matchAv => matchAv.matchNum == this.matchAvailability.matchNum);
+        this.matchAvailabilities[index] = this.matchAvailability;
+        this.availabilityTableData = this.matchAvailability.availabilities.slice();
+        this.sortData({active: "availabilityType", direction: "asc"});
+
+        this.matchAvailabilityService.postMatchAvailability(this.selectedMatch.matchNum, newAvailability.player.firstname, {
+          matchNum: this.selectedMatch.matchNum,
+          name: newAvailability.player.firstname,
+          availability: newAvailability.availabilityType,
+          role: newAvailability.player.role,
+          selected: newAvailability.selection,
+          trainingPresence: newAvailability.trainingPresence,
+          matchPresence: newAvailability.matchPresence
+        }).subscribe();
+      }
+    });
   }
 
   onCheckboxChange(event: any) {
