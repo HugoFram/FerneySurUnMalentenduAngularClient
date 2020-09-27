@@ -132,14 +132,30 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Sélectionné </th>
         <td mat-cell *matCellDef="let element"> {{element.selection}} </td>
       </ng-container>
+
+      <ng-container matColumnDef="decision">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Décision </th>
+        <td mat-cell *matCellDef="let element"> 
+          <div class="custom-control-handmade">
+            <label class="switch">
+              <input type="checkbox" [checked] = 'element.selection == "Sélectionné"' [disabled] = 'element.availabilityType == "Non disponible"' (click) = 'onCheckboxChange($event)'>
+              <span class="slider round"></span>
+            </label>
+         </div>
+        </td>
+      </ng-container>
     
       <!-- Header and Row Declarations -->
-      <tr mat-header-row *matHeaderRowDef="['playerName', 'availabilityType', 'playerRole', 'trainingPresence', 'matchPresence', 'pastMatchAvailability', 'selection']"></tr>
-      <tr mat-row *matRowDef="let row; columns: ['playerName', 'availabilityType', 'playerRole', 'trainingPresence', 'matchPresence', 'pastMatchAvailability', 'selection']"
+      <tr mat-header-row *matHeaderRowDef="['playerName', 'availabilityType', 'playerRole', 'trainingPresence', 'matchPresence', 'pastMatchAvailability', 'selection', 'decision']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['playerName', 'availabilityType', 'playerRole', 'trainingPresence', 'matchPresence', 'pastMatchAvailability', 'selection', 'decision']"
         [ngClass]="{
           'is-selected': row.selection === 'Sélectionné',
           'is-not-selected': row.selection === 'Non Sélectionné'
         }"></tr>
     </table>
+  </div>
+
+  <div fxFlex fxLayout = "row" fxLayoutAlign = "space-evenly">
+    <button mat-raised-button (click) = "validateTeam()">Valider Equipe</button>
   </div>
 </div>

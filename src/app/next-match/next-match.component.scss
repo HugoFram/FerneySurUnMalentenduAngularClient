@@ -30,13 +30,12 @@ table {
   }
   .mat-cell {
     color: #3e3f3a;
-    
   }
   tr.is-selected {
-    background-color: #00900041;
+    background-color: #00900021;
   }
   tr.is-not-selected {
-    background-color: #90000041;
+    background-color: #90000021;
   }
   .mat-row:hover {
     background-color: #F0F0F0;

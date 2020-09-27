@@ -1,6 +1,7 @@
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatSort, MatTableDataSource, Sort } from '@angular/material';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { BehaviorSubject } from 'rxjs';
 import { MatDialog, MatDialogRef } from '@angular/material';
 
@@ -46,6 +47,7 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
   trainingPresenceErrMess: string;
   matchPresenceErrMess: string;
   matchPastAvailabilityErrMess: string;
+  checkedCheckboxes: { [id: string]: boolean } = {};
 
   @ViewChild(MatSort) sort: MatSort;
 
@@ -124,6 +126,8 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
       
                 if (this.matchAvailability && this.matchAvailability.availabilities.length > 0) {
                   this.availabilityTableData = this.matchAvailability.availabilities.slice();
+                  this.matchAvailability.availabilities.forEach(availability => this.checkedCheckboxes[availability.player.firstname] = availability.selection == "Sélectionné");
+                  this.sortData({active: "availabilityType", direction: "asc"});
                 } else {
                   this.availabilityTableData = null;
                 }
@@ -152,6 +156,8 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
       this.matchAvailability = this.matchAvailabilities.filter((matchAv) => matchAv.matchNum == this.selectedMatch.matchNum)[0];
       if (this.matchAvailability && this.matchAvailability.availabilities.length > 0) {
         this.availabilityTableData = this.matchAvailability.availabilities.slice();
+        this.matchAvailability.availabilities.forEach(availability => this.checkedCheckboxes[availability.player.firstname] = availability.selection == "Sélectionné");
+        this.sortData({active: "availabilityType", direction: "asc"});
       } else {
         this.availabilityTableData = null;
       }
@@ -243,6 +249,7 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
                     this.matchAvailability.availabilities = new Array<Availability>();
                     this.matchAvailability.availabilities.push(newAvailability);
                   }
+                  this.checkedCheckboxes[newAvailability.player.firstname] = false;
                   if (this.matchAvailabilities) {
                     let index = this.matchAvailabilities.findIndex(matchAv => matchAv.matchNum == this.matchAvailability.matchNum);
                     if (index != -1) {
@@ -255,6 +262,7 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
                     this.matchAvailabilities.push(this.matchAvailability);
                   }
                   this.availabilityTableData = this.matchAvailability.availabilities.slice();
+                  this.sortData({active: "availabilityType", direction: "asc"});
   
                   this.matchAvailabilityService.postMatchAvailability(this.selectedMatch.matchNum, player.firstname, {
                     matchNum: this.selectedMatch.matchNum,
@@ -274,6 +282,27 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
     }
   }
 
+  onCheckboxChange(event: any) {
+    let checkboxState = event.target.checked;
+    let playerName = event.path[4].children[0].innerText;
+    this.checkedCheckboxes[playerName] = checkboxState;
+  }
+
+  validateTeam() {
+    this.matchAvailability.availabilities.forEach(availability => availability.selection = this.checkedCheckboxes[availability.player.firstname] ? "Sélectionné" : "Non Sélectionné");
+    this.matchAvailabilityService.postMatchAvailabilities(this.selectedMatch.matchNum, this.matchAvailability.availabilities.map(availability => {
+      return {
+        matchNum: this.selectedMatch.matchNum,
+        name: availability.player.firstname,
+        availability: availability.availabilityType,
+        role: availability.player.role,
+        selected: availability.selection,
+        trainingPresence: availability.trainingPresence,
+        matchPresence: availability.matchPresence
+      }
+    })).subscribe();
+    this.sortData({active: "selection", direction: "desc"});
+  }
 }
 
 function compare(a, b, isAsc) {

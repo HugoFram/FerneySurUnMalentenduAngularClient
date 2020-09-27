@@ -19,6 +19,15 @@ export class MatchAvailabilityService {
     return this.http.get<AvailabilityDbFormat[]>(baseURL + "availabilities").pipe(catchError(this.processHttpMsgService.handleError));
   }
 
+  postMatchAvailabilities(matchNum: string, availabilities: AvailabilityDbFormat[]): Observable<AvailabilityDbFormat[]> {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    };
+    return this.http.post<AvailabilityDbFormat[]>(baseURL + "availabilities/" + matchNum, availabilities, httpOptions).pipe(catchError(this.processHttpMsgService.handleError));
+  }
+
   postMatchAvailability(matchNum: string, playerName: string, availability: AvailabilityDbFormat): Observable<AvailabilityDbFormat> {
     const httpOptions = {
       headers: new HttpHeaders({
