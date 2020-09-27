@@ -76,6 +76,12 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
             if (players) {
               let player = players.filter(player => player.firstname == availability.name)[0];
               if (player) {
+                let pastAv: string;
+                if (pastAvailabilities.length > 0) {
+                  pastAv = pastAvailabilities.filter(pastAv => pastAv.name == player.firstname)[0].pastMatchesAvailability;
+                } else {
+                  pastAv = ''
+                }
                 av = {
                   player: {
                     firstname: player.firstname,
@@ -86,7 +92,7 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
                   availabilityType: availability.availability,
                   trainingPresence: availability.trainingPresence,
                   matchPresence: availability.matchPresence,
-                  pastAvailability: pastAvailabilities.filter(pastAv => pastAv.name == player.firstname)[0].pastMatchesAvailability,
+                  pastAvailability: pastAv ? pastAv : '',
                   selection: availability.selected
                 };
                 match_availabilities[index].availabilities.push(av);
@@ -251,7 +257,7 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
                     availabilityType: result.data.availability,
                     trainingPresence: trainingPresence,
                     matchPresence: matchPresence,
-                    pastAvailability: pastAvailability.pastMatchesAvailability,
+                    pastAvailability: pastAvailability ? pastAvailability.pastMatchesAvailability : '',
                     selection: "Indeterminé"
                   };
                   if (this.matchAvailability) {

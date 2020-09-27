@@ -12,6 +12,7 @@ import { PresenceMatchDbFormat } from '../shared/presenceMatchDbFormat';
 import { Player } from '../shared/player';
 import { PresenceService } from '../services/presence.service';
 import { PlayerService } from '../services/player.service';
+import { MatchAvailabilityService } from '../services/match-availability.service';
 
 class PickDateAdapter extends NativeDateAdapter {
   format(date: Date, displayFormat: Object): string {
@@ -47,7 +48,7 @@ export class PresenceMatchComponent implements OnInit {
   matchPresences: PresenceList;
   players: Player[];
 
-  constructor(private presenceService: PresenceService, private playerService: PlayerService, private dialog: MatDialog, private datePipe: DatePipe) { }
+  constructor(private presenceService: PresenceService, private playerService: PlayerService, private matchAvailabilityService: MatchAvailabilityService, private dialog: MatDialog, private datePipe: DatePipe) { }
 
   ngOnInit() {
     this.presenceService.getMatchPresences().subscribe(presencesDB => {
@@ -141,7 +142,9 @@ export class PresenceMatchComponent implements OnInit {
           }
         }
 
-        this.presenceService.postMatchPresences(presencesDB, this.datePipe.transform(result.data.date, 'yyyy-MM-dd')).subscribe();
+        this.presenceService.postMatchPresences(presencesDB, this.datePipe.transform(result.data.date, 'yyyy-MM-dd')).subscribe(result => {
+          this.updateMatchPresenceStatistics();
+        });
       }
     });
 
@@ -157,7 +160,27 @@ export class PresenceMatchComponent implements OnInit {
         this.presenceService.deleteMatchPresences(matchDate).subscribe();
         this.matchPresences.labels.splice(index, 1);
         this.matchPresences.presences.forEach(presence => presence.presenceTypes.splice(index, 1));
+
+        this.updateMatchPresenceStatistics();
       }
+    });
+  }
+
+  updateMatchPresenceStatistics() {
+    // Load all match availabilities to update match presence statistics
+    this.matchAvailabilityService.getMatchAvailabilities().subscribe(availabilities => {
+      // Load all match presences to compute match presence statistics and get unique match dates
+      this.presenceService.getMatchPresences().subscribe(matchPresencesDB => {
+        availabilities.forEach(availability => {
+          let numMatches = matchPresencesDB.filter(presence => presence.name == availability.name).length;
+          let numPresence = matchPresencesDB.filter(presence => presence.name == availability.name).map(presence => presence.presence == "Présent" ? 1 : 0).reduce((acc, val) => acc += val, 0);
+          availability.matchPresence = Math.round(100.0*numPresence / numMatches) + " % (" + numPresence + "/" + numMatches + ")";
+        });
+        let matchNums = availabilities.filter(
+          (availability, i, _availabilities) => _availabilities.findIndex(_availability => _availability.matchNum === availability.matchNum) === i
+        ).map(availability => availability.matchNum);
+        matchNums.forEach(matchNum => this.matchAvailabilityService.postMatchAvailabilities(matchNum, availabilities.filter(availability => availability.matchNum == matchNum)).subscribe());
+      });
     });
   }
 
