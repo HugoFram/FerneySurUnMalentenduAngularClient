@@ -169,11 +169,12 @@ export class PresenceMatchComponent implements OnInit {
   updateMatchPresenceStatistics() {
     // Load all match availabilities to update match presence statistics
     this.matchAvailabilityService.getMatchAvailabilities().subscribe(availabilities => {
-      // Load all match presences to compute match presence statistics and get unique match dates
+      // Load all match presences to compute match presence statistics
       this.presenceService.getMatchPresences().subscribe(matchPresencesDB => {
         availabilities.forEach(availability => {
           let numMatches = matchPresencesDB.filter(presence => presence.name == availability.name).length;
-          let numPresence = matchPresencesDB.filter(presence => presence.name == availability.name).map(presence => presence.presence == "Présent" ? 1 : 0).reduce((acc, val) => acc += val, 0);
+          let numPresence = matchPresencesDB.filter(presence => presence.name == availability.name)
+                                            .map(presence => (presence.presence == "Présent" || presence.presence == "Présent sans jouer") ? 1 : 0).reduce((acc, val) => acc += val, 0);
           availability.matchPresence = Math.round(100.0*numPresence / numMatches) + " % (" + numPresence + "/" + numMatches + ")";
         });
         let matchNums = availabilities.filter(

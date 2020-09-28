@@ -13,6 +13,7 @@ import { Player } from '../shared/player';
 import { PresenceService } from '../services/presence.service';
 import { PlayerService } from '../services/player.service';
 import { isNull } from 'util';
+import { MatchAvailabilityService } from '../services/match-availability.service';
 
 class PickDateAdapter extends NativeDateAdapter {
   format(date: Date, displayFormat: Object): string {
@@ -48,7 +49,7 @@ export class PresenceTrainingComponent implements OnInit {
   trainingPresences: PresenceList;
   players: Player[];
 
-  constructor(private presenceService: PresenceService, private playerService: PlayerService, private dialog: MatDialog, private datePipe: DatePipe) { }
+  constructor(private presenceService: PresenceService, private playerService: PlayerService, private matchAvailabilityService: MatchAvailabilityService, private dialog: MatDialog, private datePipe: DatePipe) { }
 
   ngOnInit() {
     this.presenceService.getTrainingPresences().subscribe(presencesDB => {
@@ -122,7 +123,9 @@ export class PresenceTrainingComponent implements OnInit {
           });
         }
 
-        this.presenceService.postTrainingPresences(presencesDB, this.datePipe.transform(result.data.date, 'yyyy-MM-dd')).subscribe();
+        this.presenceService.postTrainingPresences(presencesDB, this.datePipe.transform(result.data.date, 'yyyy-MM-dd')).subscribe(result => {
+          this.updateTrainingPresenceStatistics();
+        });
       }
     });
 
@@ -137,7 +140,28 @@ export class PresenceTrainingComponent implements OnInit {
         this.presenceService.deleteTrainingPresences(trainingDate).subscribe();
         this.trainingPresences.labels.splice(index, 1);
         this.trainingPresences.presences.forEach(presence => presence.presenceTypes.splice(index, 1));
+
+        this.updateTrainingPresenceStatistics();
       }
+    });
+  }
+
+  updateTrainingPresenceStatistics() {
+    // Load all match availabilities to update match presence statistics
+    this.matchAvailabilityService.getMatchAvailabilities().subscribe(availabilities => {
+      // Load all training presences to compute training presence statistics
+      this.presenceService.getTrainingPresences().subscribe(trainingPresencesDB => {
+        availabilities.forEach(availability => {
+          let numTrainings = trainingPresencesDB.filter(presence => presence.name == availability.name).length;
+          let numPresence = trainingPresencesDB.filter(presence => presence.name == availability.name)
+                                               .map(presence => presence.presence == "Présent" ? 1 : 0).reduce((acc, val) => acc += val, 0);
+          availability.trainingPresence = Math.round(100.0*numPresence / numTrainings) + " % (" + numPresence + "/" + numTrainings + ")";
+        });
+        let matchNums = availabilities.filter(
+          (availability, i, _availabilities) => _availabilities.findIndex(_availability => _availability.matchNum === availability.matchNum) === i
+        ).map(availability => availability.matchNum);
+        matchNums.forEach(matchNum => this.matchAvailabilityService.postMatchAvailabilities(matchNum, availabilities.filter(availability => availability.matchNum == matchNum)).subscribe());
+      });
     });
   }
 
