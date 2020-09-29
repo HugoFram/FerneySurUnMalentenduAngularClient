@@ -5,20 +5,20 @@ import { PresenceMatchDbFormat } from '../shared/presenceMatchDbFormat';
 import { TRAINING_PRESENCE } from '../shared/trainingPresences';
 import { MATCH_PRESENCE } from '../shared/matchPresences';
 import { Observable } from 'rxjs';
-import { baseURL } from '../shared/baseurl';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map, catchError } from 'rxjs/operators';
 import { ProcessHTTPMsgService } from '../services/process-httpmsg.service';
+import { ConfigService } from './config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PresenceService {
 
-  constructor(private http: HttpClient, private processHttpMsgService: ProcessHTTPMsgService) { }
+  constructor(private http: HttpClient, private processHttpMsgService: ProcessHTTPMsgService, private configService: ConfigService) { }
 
   getTrainingPresences(): Observable<PresenceTrainingDbFormat[]> {
-    return this.http.get<PresenceTrainingDbFormat[]>(baseURL + "training-presences").pipe(catchError(this.processHttpMsgService.handleError));
+    return this.http.get<PresenceTrainingDbFormat[]>(this.configService.baseURL + "training-presences").pipe(catchError(this.processHttpMsgService.handleError));
   }
 
   postTrainingPresences(presences: PresenceTrainingDbFormat[], trainingDate: string): Observable<PresenceTrainingDbFormat[]> {
@@ -27,15 +27,15 @@ export class PresenceService {
         'Content-Type': 'application/json'
       })
     };
-    return this.http.post<PresenceTrainingDbFormat[]>(baseURL + "training-presences/" + trainingDate, presences, httpOptions).pipe(catchError(this.processHttpMsgService.handleError));
+    return this.http.post<PresenceTrainingDbFormat[]>(this.configService.baseURL + "training-presences/" + trainingDate, presences, httpOptions).pipe(catchError(this.processHttpMsgService.handleError));
   }
 
   deleteTrainingPresences(trainingDate: string): Observable<{}> {
-    return this.http.delete(baseURL + "training-presences/" + trainingDate).pipe(catchError(this.processHttpMsgService.handleError));
+    return this.http.delete(this.configService.baseURL + "training-presences/" + trainingDate).pipe(catchError(this.processHttpMsgService.handleError));
   }
 
   getMatchPresences(): Observable<PresenceMatchDbFormat[]> {
-    return this.http.get<PresenceMatchDbFormat[]>(baseURL + "match-presences").pipe(catchError(this.processHttpMsgService.handleError));
+    return this.http.get<PresenceMatchDbFormat[]>(this.configService.baseURL + "match-presences").pipe(catchError(this.processHttpMsgService.handleError));
   }
 
   postMatchPresences(presences: PresenceMatchDbFormat[], matchDate: string): Observable<PresenceMatchDbFormat[]> {
@@ -44,10 +44,10 @@ export class PresenceService {
         'Content-Type': 'application/json'
       })
     };
-    return this.http.post<PresenceMatchDbFormat[]>(baseURL + "match-presences/" + matchDate, presences, httpOptions).pipe(catchError(this.processHttpMsgService.handleError));
+    return this.http.post<PresenceMatchDbFormat[]>(this.configService.baseURL + "match-presences/" + matchDate, presences, httpOptions).pipe(catchError(this.processHttpMsgService.handleError));
   }
 
   deleteMatchPresences(matchDate: string): Observable<{}> {
-    return this.http.delete(baseURL + "match-presences/" + matchDate).pipe(catchError(this.processHttpMsgService.handleError));
+    return this.http.delete(this.configService.baseURL + "match-presences/" + matchDate).pipe(catchError(this.processHttpMsgService.handleError));
   }
 }

@@ -3,20 +3,20 @@ import { MatchAvailability } from '../shared/matchAvailability';
 import { AvailabilityDbFormat } from '../shared/availabilityDbFormat';
 import { PastMatchAvailability } from '../shared/pastMatchAvailability';
 import { Observable } from 'rxjs';
-import { baseURL } from '../shared/baseurl';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map, catchError } from 'rxjs/operators';
 import { ProcessHTTPMsgService } from '../services/process-httpmsg.service';
+import { ConfigService } from './config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MatchAvailabilityService {
 
-  constructor(private http: HttpClient, private processHttpMsgService: ProcessHTTPMsgService) { }
+  constructor(private http: HttpClient, private processHttpMsgService: ProcessHTTPMsgService, private configService: ConfigService) { }
 
   getMatchAvailabilities(): Observable<AvailabilityDbFormat[]> {
-    return this.http.get<AvailabilityDbFormat[]>(baseURL + "availabilities").pipe(catchError(this.processHttpMsgService.handleError));
+    return this.http.get<AvailabilityDbFormat[]>(this.configService.baseURL + "availabilities").pipe(catchError(this.processHttpMsgService.handleError));
   }
 
   postMatchAvailabilities(matchNum: string, availabilities: AvailabilityDbFormat[]): Observable<AvailabilityDbFormat[]> {
@@ -25,7 +25,7 @@ export class MatchAvailabilityService {
         'Content-Type': 'application/json'
       })
     };
-    return this.http.post<AvailabilityDbFormat[]>(baseURL + "availabilities/" + matchNum, availabilities, httpOptions).pipe(catchError(this.processHttpMsgService.handleError));
+    return this.http.post<AvailabilityDbFormat[]>(this.configService.baseURL + "availabilities/" + matchNum, availabilities, httpOptions).pipe(catchError(this.processHttpMsgService.handleError));
   }
 
   postMatchAvailability(matchNum: string, playerName: string, availability: AvailabilityDbFormat): Observable<AvailabilityDbFormat> {
@@ -34,14 +34,14 @@ export class MatchAvailabilityService {
         'Content-Type': 'application/json'
       })
     };
-    return this.http.post<AvailabilityDbFormat>(baseURL + "availabilities/" + matchNum + "/" + playerName, availability, httpOptions).pipe(catchError(this.processHttpMsgService.handleError));
+    return this.http.post<AvailabilityDbFormat>(this.configService.baseURL + "availabilities/" + matchNum + "/" + playerName, availability, httpOptions).pipe(catchError(this.processHttpMsgService.handleError));
   }
 
   getPastMatchAvailabilities(): Observable<PastMatchAvailability[]> {
-    return this.http.get<PastMatchAvailability[]>(baseURL + "past-availabilities").pipe(catchError(this.processHttpMsgService.handleError));
+    return this.http.get<PastMatchAvailability[]>(this.configService.baseURL + "past-availabilities").pipe(catchError(this.processHttpMsgService.handleError));
   }
 
   getPlayerPastMatchAvailability(playerName: string): Observable<PastMatchAvailability> {
-    return this.http.get<PastMatchAvailability>(baseURL + "past-availabilities/" + playerName).pipe(catchError(this.processHttpMsgService.handleError));
+    return this.http.get<PastMatchAvailability>(this.configService.baseURL + "past-availabilities/" + playerName).pipe(catchError(this.processHttpMsgService.handleError));
   }
 }

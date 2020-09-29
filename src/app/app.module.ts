@@ -1,3 +1,4 @@
+import { APP_INITIALIZER } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -24,7 +25,7 @@ import { MAT_DATE_LOCALE } from '@angular/material/core';
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 registerLocaleData(localeFr);
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DatePipe } from '@angular/common'
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -37,10 +38,13 @@ import { RoomService } from './services/room.service';
 import { PresenceService } from './services/presence.service';
 import { RankService } from './services/rank.service';
 import { ProcessHTTPMsgService } from './services/process-httpmsg.service';
+import { ConfigService } from './services/config.service';
 
 import { AppComponent } from './app.component';
 import { fromEventPattern } from 'rxjs';
 import 'hammerjs';
+import { of, Observable, ObservableInput } from '../../node_modules/rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { NextMatchComponent } from './next-match/next-match.component';
 import { RankingComponent } from './ranking/ranking.component';
 import { CalendarComponent } from './calendar/calendar.component';
@@ -56,6 +60,28 @@ import { DeleteTrainingComponent } from './modals/delete-training/delete-trainin
 import { AddMatchComponent } from './modals/add-match/add-match.component';
 import { DeleteMatchComponent } from './modals/delete-match/delete-match.component';
 import { PlayerComponent } from './modals/player/player.component';
+
+function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>) {
+  return (): Promise<boolean> => {
+    return new Promise<boolean>((resolve: (a: boolean) => void): void => {
+       http.get('../config.json')
+         .pipe(
+           map((x: ConfigService) => {
+             config.baseURL = x.baseURL;
+             resolve(true);
+           }),
+           catchError((x: { status: number }, caught: Observable<void>): ObservableInput<{}> => {
+             if (x.status !== 404) {
+               resolve(false);
+             }
+             config.baseURL = 'http://localhost:3002/';
+             resolve(true);
+             return of({});
+           })
+         ).subscribe();
+    });
+  };
+}
 
 @NgModule({
   declarations: [
@@ -115,7 +141,16 @@ import { PlayerComponent } from './modals/player/player.component';
     RankService,
     ProcessHTTPMsgService,
     DatePipe,
-    {provide: MAT_DATE_LOCALE, useValue: 'fr-FR'}
+    {provide: MAT_DATE_LOCALE, useValue: 'fr-FR'},
+    {
+      provide: APP_INITIALIZER,
+      useFactory: load,
+      deps: [
+        HttpClient,
+        ConfigService
+      ],
+      multi: true
+    }
   ],
   bootstrap: [AppComponent],
   entryComponents: [
