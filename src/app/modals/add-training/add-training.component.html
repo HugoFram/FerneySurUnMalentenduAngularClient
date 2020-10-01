@@ -8,7 +8,7 @@
         <mat-datepicker-toggle matSuffix [for]="myDatepicker"></mat-datepicker-toggle>
         <mat-datepicker #myDatepicker></mat-datepicker>
       </mat-form-field>
-      <label formArrayName="presenceList" *ngFor="let order of trainingForm.controls.presenceList.controls; let i = index">
+      <label formArrayName="presenceList" *ngFor="let order of trainingForm.get('presenceList')['controls']; let i = index">
         <input type="checkbox" [formControlName]="i">
         {{presences[i]}}
       </label>

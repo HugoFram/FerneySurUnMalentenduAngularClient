@@ -61,20 +61,23 @@ import { AddMatchComponent } from './modals/add-match/add-match.component';
 import { DeleteMatchComponent } from './modals/delete-match/delete-match.component';
 import { PlayerComponent } from './modals/player/player.component';
 
-function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>) {
+export function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>) {
   return (): Promise<boolean> => {
     return new Promise<boolean>((resolve: (a: boolean) => void): void => {
-       http.get('../config.json')
+       http.get('./config.json')
          .pipe(
            map((x: ConfigService) => {
              config.baseURL = x.baseURL;
+             console.log("Loaded baseURL from config file.");
              resolve(true);
            }),
            catchError((x: { status: number }, caught: Observable<void>): ObservableInput<{}> => {
              if (x.status !== 404) {
+              console.log("Could not load baseURL from config file.");
                resolve(false);
              }
              config.baseURL = 'http://localhost:3002/';
+             console.log("Could not load baseURL from config file.");
              resolve(true);
              return of({});
            })

@@ -14,7 +14,7 @@ import { PresenceService } from '../services/presence.service';
 import { PlayerService } from '../services/player.service';
 import { MatchAvailabilityService } from '../services/match-availability.service';
 
-class PickDateAdapter extends NativeDateAdapter {
+export class PickDateAdapter extends NativeDateAdapter {
   format(date: Date, displayFormat: Object): string {
       if (displayFormat === 'input') {
           return formatDate(date,'dd-MMM-yyyy',this.locale);;

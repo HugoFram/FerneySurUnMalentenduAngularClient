@@ -22,8 +22,8 @@ export class MapService {
   
     let marker = leaflet.marker([ lgt, lat ], {
       icon: leaflet.icon({
-        iconUrl: 'www/images/marker-icon.png',
-        shadowUrl: 'www/images/marker-shadow.png',
+        iconUrl: 'assets/images/marker-icon.png',
+        shadowUrl: 'assets/images/marker-shadow.png',
         iconSize: [24,36],
         iconAnchor: [12,36],
       }),

@@ -7,7 +7,7 @@ import { DateAdapter, NativeDateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } fro
 import { formatDate } from '@angular/common';
 import { PresenceList } from '../../shared/presenceList';
 
-class PickDateAdapter extends NativeDateAdapter {
+export class PickDateAdapter extends NativeDateAdapter {
   format(date: Date, displayFormat: Object): string {
       if (displayFormat === 'input') {
           return formatDate(date,'dd-MMM-yyyy',this.locale);;
