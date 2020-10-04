@@ -155,7 +155,7 @@
     </table>
   </div>
 
-  <div fxFlex fxLayout = "row" fxLayoutAlign = "space-evenly">
+  <div fxFlex fxLayout = "row" fxLayoutAlign = "space-evenly" *ngIf = "availabilityTableData && loggedPlayer == 'Cédric'">
     <button mat-raised-button (click) = "validateTeam()">Valider Equipe</button>
   </div>
 </div>
