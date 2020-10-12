@@ -12,7 +12,6 @@ table {
         }
         .mat-cell {
             color: #3e3f3a;
-            
         }
         .mat-row {
             height: 38px;
@@ -24,6 +23,10 @@ table {
         
         .mat-row:nth-child(odd){
             background-color:#FFFFFF;
+        }
+
+        .mat-row.is-next-match {
+            background-color: #90000021;
         }
 
         .mat-cell.is-our-team {

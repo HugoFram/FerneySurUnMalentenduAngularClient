@@ -16,6 +16,7 @@ export class CalendarComponent implements OnInit {
   displayedColumns: string[] = ['id', 'home', 'visitor', 'date', 'hour', 'place'];
   calendar: Match[];
   calendarTableData: MatTableDataSource<Match>;
+  nextMatchDate: Date;
   errMess: string;
 
   @ViewChild(MatSort) sort: MatSort;
@@ -30,6 +31,7 @@ export class CalendarComponent implements OnInit {
       });
       this.calendarTableData = new MatTableDataSource<Match>(this.calendar);
       this.calendarTableData.sort = this.sort;
+      this.nextMatchDate = this.calendarTableData.filteredData.filter(entry => entry.date > new Date()).map(entry => entry.date).reduce((dateA, dateB)=> dateA < dateB ? dateA : dateB);
     }, errmess => this.errMess = <any>errmess);
   }
 

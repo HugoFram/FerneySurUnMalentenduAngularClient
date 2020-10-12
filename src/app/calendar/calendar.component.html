@@ -10,7 +10,7 @@
       <input matInput (keyup)="applyFilter($event)" placeholder="Rechercher" #input>
     </mat-form-field>
   </div>
-  <table mat-table matSort class="mat-elevation-z8" [dataSource] = "calendarTableData">
+  <table mat-table matSort class="mat-elevation-z8" [dataSource] = "calendarTableData" matSortActive="date" matSortDirection="asc" matSortDisableClear>
 
     <ng-container matColumnDef="id">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Numéro de Match </th>
@@ -52,6 +52,9 @@
   
     <!-- Header and Row Declarations -->
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"
+      [ngClass]="{
+        'is-next-match': row.date == this.nextMatchDate
+      }"></tr>
   </table>
 </div>
