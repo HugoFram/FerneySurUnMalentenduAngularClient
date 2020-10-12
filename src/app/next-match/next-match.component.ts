@@ -201,103 +201,113 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
   }
 
   enterAvailability() {
-    if (this.loggedPlayer == "-") {
-      this.dialog.open(LoginComponent);
+    let existingAvailability = null;
+    if (this.matchAvailability) {
+      existingAvailability = this.matchAvailability.availabilities.filter(availability => availability.player.firstname == this.loggedPlayer)[0];
     }
-    else {
-      let existingAvailability = null;
-      if (this.matchAvailability) {
-        existingAvailability = this.matchAvailability.availabilities.filter(availability => availability.player.firstname == this.loggedPlayer)[0];
-      }
-      let dialogRef;
-      if (existingAvailability) {
-        dialogRef = this.dialog.open(AvailabilityComponent, {data: { currentAvailability: existingAvailability } });
-      } else {
-        dialogRef = this.dialog.open(AvailabilityComponent, {data: { currentAvailability: null } });
-      }
-  
-      dialogRef.afterClosed().subscribe(result => {
-        if (result) {
-          let newAvailability: Availability;
-          let existingAvailability = null;
-          let player: Player;
-          let availabilityId: number;
+    let dialogRef;
+    if (existingAvailability) {
+      dialogRef = this.dialog.open(AvailabilityComponent, {data: { currentAvailability: existingAvailability } });
+    } else {
+      dialogRef = this.dialog.open(AvailabilityComponent, {data: { currentAvailability: null } });
+    }
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        let newAvailability: Availability;
+        let existingAvailability = null;
+        let player: Player;
+        let availabilityId: number;
+        
+        // Retrieve player information
+        this.playerService.getPlayer(this.loggedPlayer).subscribe(pl => {
+          player = pl;
+          player.role = result.data.role;
+          if (this.matchAvailability) {
+            existingAvailability = this.matchAvailability.availabilities.filter(availability => availability.player.firstname == this.loggedPlayer)[0];
+          }
+          if (existingAvailability) {
+            this.matchAvailability.availabilities = this.matchAvailability.availabilities.filter(availability =>  availability.player.firstname != this.loggedPlayer);
+          }
           
-          // Retrieve player information
-          this.playerService.getPlayer(this.loggedPlayer).subscribe(pl => {
-            player = pl;
-            player.role = result.data.role;
-            if (this.matchAvailability) {
-              existingAvailability = this.matchAvailability.availabilities.filter(availability => availability.player.firstname == this.loggedPlayer)[0];
-            }
-            if (existingAvailability) {
-              this.matchAvailability.availabilities = this.matchAvailability.availabilities.filter(availability =>  availability.player.firstname != this.loggedPlayer);
-            }
-            
-            // Compute Training Presence string
-            this.presenceService.getTrainingPresences().subscribe(presences => {
-              let numTrainings = presences.filter(presence => presence.name == player.firstname).length;
+          // Compute Training Presence string
+          this.presenceService.getTrainingPresences().subscribe(presences => {
+            let numTrainings = presences.filter(presence => presence.name == player.firstname).length;
+            let numPresence = presences.filter(presence => presence.name == player.firstname).map(presence => presence.presence == "Présent" ? 1 : 0).reduce((acc, val) => acc += val, 0);
+            let trainingPresence = Math.round(100.0*numPresence / numTrainings) + " % (" + numPresence + "/" + numTrainings + ")";
+
+            // Compute Match Presence string
+            this.presenceService.getMatchPresences().subscribe(presences => {
+              let numMatches = presences.filter(presence => presence.name == player.firstname).length;
               let numPresence = presences.filter(presence => presence.name == player.firstname).map(presence => presence.presence == "Présent" ? 1 : 0).reduce((acc, val) => acc += val, 0);
-              let trainingPresence = Math.round(100.0*numPresence / numTrainings) + " % (" + numPresence + "/" + numTrainings + ")";
+              let matchPresence = Math.round(100.0*numPresence / numMatches) + " % (" + numPresence + "/" + numMatches + ")";
 
-              // Compute Match Presence string
-              this.presenceService.getMatchPresences().subscribe(presences => {
-                let numMatches = presences.filter(presence => presence.name == player.firstname).length;
-                let numPresence = presences.filter(presence => presence.name == player.firstname).map(presence => presence.presence == "Présent" ? 1 : 0).reduce((acc, val) => acc += val, 0);
-                let matchPresence = Math.round(100.0*numPresence / numMatches) + " % (" + numPresence + "/" + numMatches + ")";
-
-                this.matchAvailabilityService.getPlayerPastMatchAvailability(player.firstname).subscribe(pastAvailability => {
-                  newAvailability = {
-                    player: {
-                      firstname: player.firstname,
-                      lastname: player.lastname,
-                      role: result.data.role,
-                      email: player.email
-                    },
-                    availabilityType: result.data.availability,
-                    trainingPresence: trainingPresence,
-                    matchPresence: matchPresence,
-                    pastAvailability: pastAvailability ? pastAvailability.pastMatchesAvailability : '',
-                    selection: "Indeterminé"
-                  };
-                  if (this.matchAvailability) {
-                    this.matchAvailability.availabilities.push(newAvailability);
+              this.matchAvailabilityService.getPlayerPastMatchAvailability(player.firstname).subscribe(pastAvailability => {
+                newAvailability = {
+                  player: {
+                    firstname: player.firstname,
+                    lastname: player.lastname,
+                    role: result.data.role,
+                    email: player.email
+                  },
+                  availabilityType: result.data.availability,
+                  trainingPresence: trainingPresence,
+                  matchPresence: matchPresence,
+                  pastAvailability: pastAvailability ? pastAvailability.pastMatchesAvailability : '',
+                  selection: "Indeterminé"
+                };
+                if (this.matchAvailability) {
+                  this.matchAvailability.availabilities.push(newAvailability);
+                } else {
+                  this.matchAvailability = new MatchAvailability();
+                  this.matchAvailability.matchNum = this.selectedMatch.matchNum;
+                  this.matchAvailability.availabilities = new Array<Availability>();
+                  this.matchAvailability.availabilities.push(newAvailability);
+                }
+                this.checkedCheckboxes[newAvailability.player.firstname] = false;
+                if (this.matchAvailabilities) {
+                  let index = this.matchAvailabilities.findIndex(matchAv => matchAv.matchNum == this.matchAvailability.matchNum);
+                  if (index != -1) {
+                    this.matchAvailabilities[index] = this.matchAvailability;
                   } else {
-                    this.matchAvailability = new MatchAvailability();
-                    this.matchAvailability.matchNum = this.selectedMatch.matchNum;
-                    this.matchAvailability.availabilities = new Array<Availability>();
-                    this.matchAvailability.availabilities.push(newAvailability);
-                  }
-                  this.checkedCheckboxes[newAvailability.player.firstname] = false;
-                  if (this.matchAvailabilities) {
-                    let index = this.matchAvailabilities.findIndex(matchAv => matchAv.matchNum == this.matchAvailability.matchNum);
-                    if (index != -1) {
-                      this.matchAvailabilities[index] = this.matchAvailability;
-                    } else {
-                      this.matchAvailabilities.push(this.matchAvailability);
-                    }
-                  } else {
-                    this.matchAvailabilities = new Array<MatchAvailability>();
                     this.matchAvailabilities.push(this.matchAvailability);
                   }
-                  this.availabilityTableData = this.matchAvailability.availabilities.slice();
-                  this.sortData({active: "availabilityType", direction: "asc"});
-  
-                  this.matchAvailabilityService.postMatchAvailability(this.selectedMatch.matchNum, player.firstname, {
-                    matchNum: this.selectedMatch.matchNum,
-                    name: player.firstname,
-                    availability: result.data.availability,
-                    role: result.data.role,
-                    selected: "Indeterminé",
-                    trainingPresence: trainingPresence,
-                    matchPresence: matchPresence
-                  }).subscribe();
-                }, errmess => this.matchPastAvailabilityErrMess = <any>errmess);
-              }, errmess => this.matchPresenceErrMess = <any>errmess);
-            }, errmess => this.trainingPresenceErrMess = <any>errmess);
-          }, errmess => this.matchErrMess = <any>errmess);
+                } else {
+                  this.matchAvailabilities = new Array<MatchAvailability>();
+                  this.matchAvailabilities.push(this.matchAvailability);
+                }
+                this.availabilityTableData = this.matchAvailability.availabilities.slice();
+                this.sortData({active: "availabilityType", direction: "asc"});
+
+                this.matchAvailabilityService.postMatchAvailability(this.selectedMatch.matchNum, player.firstname, {
+                  matchNum: this.selectedMatch.matchNum,
+                  name: player.firstname,
+                  availability: result.data.availability,
+                  role: result.data.role,
+                  selected: "Indeterminé",
+                  trainingPresence: trainingPresence,
+                  matchPresence: matchPresence
+                }).subscribe();
+              }, errmess => this.matchPastAvailabilityErrMess = <any>errmess);
+            }, errmess => this.matchPresenceErrMess = <any>errmess);
+          }, errmess => this.trainingPresenceErrMess = <any>errmess);
+        }, errmess => this.matchErrMess = <any>errmess);
+      }
+    });
+  }
+
+  onEnterAvailabilityClick() {
+    let dialogRef;
+    if (this.loggedPlayer == "-") {
+      dialogRef = this.dialog.open(LoginComponent);
+      dialogRef.afterClosed().subscribe(result => {
+        if (result.success) {
+          this.enterAvailability();
         }
       });
+    }
+    else {
+      this.enterAvailability();
     }
   }
 

@@ -37,7 +37,7 @@ export class LoginComponent implements OnInit {
   onSubmit() {
     this.selectedPlayer = this.playerForm.value.playerName;
     this.playerService.setLoggedPlayer(this.selectedPlayer);
-    this.dialogRef.close();
+    this.dialogRef.close({success: true});
   }
 
   //onValueChanged(data?: any) {
