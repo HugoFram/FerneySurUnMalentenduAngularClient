@@ -70,7 +70,13 @@
 
       <ng-container matColumnDef="playerRole">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Poste </th>
-        <td mat-cell *matCellDef="let element"> {{element.player.role}} </td>
+        <td mat-cell *matCellDef="let element"
+          [ngClass]="{
+            'role-grey': element.player.role === 'Au choix',
+            'role-blue': element.player.role === 'Central',
+            'role-green': element.player.role === 'Passe',
+            'role-orange': element.player.role === 'Attaque'
+          }"> {{element.player.role}} </td>
       </ng-container>
 
       <ng-container matColumnDef="trainingPresence">
