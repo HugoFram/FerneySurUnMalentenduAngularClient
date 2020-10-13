@@ -4,9 +4,11 @@ import { MatSort, MatTableDataSource, Sort } from '@angular/material';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { BehaviorSubject } from 'rxjs';
 import { MatDialog, MatDialogRef } from '@angular/material';
+import { Params, ActivatedRoute } from '@angular/router';
 
 import { LoginComponent } from '../modals/login/login.component';
 import { AvailabilityComponent } from '../modals/availability/availability.component';
+import { ReminderConfirmationComponent } from '../modals/reminder-confirmation/reminder-confirmation.component';
 
 import { Match  } from '../shared/match';
 import { NextMatch  } from '../shared/nextMatch';
@@ -15,6 +17,8 @@ import { Availability } from '../shared/availability';
 import { PastMatchAvailability } from '../shared/pastMatchAvailability';
 import { Room } from '../shared/room';
 import { Player } from '../shared/player';
+import { Email } from '../shared/email';
+import { buildReminderEmail } from '../shared/reminderEmail';
 
 import { MapService } from '../services/map.service';
 import { MatchAvailabilityService } from '../services/match-availability.service';
@@ -22,6 +26,8 @@ import { MatchService } from '../services/match.service';
 import { RoomService } from '../services/room.service';
 import { PlayerService } from '../services/player.service';
 import { PresenceService } from '../services/presence.service';
+import { SendmailService } from '../services/sendmail.service';
+import { ConfigService } from '../services/config.service';
 
 @Component({
   selector: 'app-next-match',
@@ -31,6 +37,7 @@ import { PresenceService } from '../services/presence.service';
 export class NextMatchComponent implements OnInit, AfterViewInit {
 
   nextMatches: NextMatch[];
+  selectedTabIndex: number;
   selectedMatch: NextMatch;
   selectedRoom: Room;
   homeTeam: string;
@@ -54,7 +61,8 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
   private map;
 
   constructor(private dialog: MatDialog, private mapService: MapService, private matchAvailabilityService: MatchAvailabilityService, 
-              private matchService: MatchService, private roomService: RoomService, private playerService: PlayerService, private presenceService: PresenceService) {}
+              private matchService: MatchService, private roomService: RoomService, private playerService: PlayerService, private presenceService: PresenceService,
+              private sendmailService: SendmailService, private configService: ConfigService, private route: ActivatedRoute) {}
 
   ngOnInit() {
     this.matchAvailabilityService.getMatchAvailabilities().subscribe(availabilities => {
@@ -131,6 +139,7 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
     
               if (this.nextMatches.length > 0) {
                 this.selectedMatch = this.nextMatches[0];
+                this.selectedTabIndex = 0;
                 this.selectedRoom = this.rooms.filter((room) => room.address == this.selectedMatch.place)[0];
                 this.homeTeam = this.nextMatches[0].homeOrVisitor == "Domicile" ? "Ferney sur un malentendu" : this.nextMatches[0].opponent;
       
@@ -149,6 +158,19 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
                 this.playerService.getLoggedPlayer().subscribe((player) => this.loggedPlayer = player);
       
                 this.map = this.mapService.initMap(this.map, this.selectedRoom.latitude, this.selectedRoom.longitude, this.homeTeam);
+
+                // Deal with query parameters provided in case of availability provisioned by clicking on e-mail buttons
+                let queryParams;
+                this.route.queryParams.subscribe(params => queryParams = params);
+                if (queryParams.playerName) {
+                  if (queryParams.matchNum != this.selectedMatch.matchNum) {
+                    this.selectedTabIndex = this.nextMatches.findIndex(match => match.matchNum == queryParams.matchNum);
+                    this.onTabChange({index: this.selectedTabIndex });
+                  }
+                  this.playerService.getPlayer(queryParams.playerName).subscribe(player => {
+                    this.enterAvailability(player.firstname, player.role, queryParams.available == "yes" ? "Disponible" : (queryParams.available == "maybe" ? "Disponible si besoin" : "Non disponible"));
+                  }, errmess => this.playerErrMess = <any>errmess);
+                }
               }
             }, errmess => this.roomErrMess = <any>errmess);
           }, errmess => this.matchErrMess = <any>errmess);
@@ -200,29 +222,16 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
     });
   }
 
-  enterAvailability() {
-    let existingAvailability = null;
-    if (this.matchAvailability) {
-      existingAvailability = this.matchAvailability.availabilities.filter(availability => availability.player.firstname == this.loggedPlayer)[0];
-    }
-    let dialogRef;
-    if (existingAvailability) {
-      dialogRef = this.dialog.open(AvailabilityComponent, {data: { currentAvailability: existingAvailability } });
-    } else {
-      dialogRef = this.dialog.open(AvailabilityComponent, {data: { currentAvailability: null } });
-    }
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        let newAvailability: Availability;
+  enterAvailability(playerName: string, playerRole: string, playerAvailability: string) {
+    let newAvailability: Availability;
         let existingAvailability = null;
         let player: Player;
         let availabilityId: number;
         
         // Retrieve player information
-        this.playerService.getPlayer(this.loggedPlayer).subscribe(pl => {
+        this.playerService.getPlayer(playerName).subscribe(pl => {
           player = pl;
-          player.role = result.data.role;
+          player.role = playerRole;
           if (this.matchAvailability) {
             existingAvailability = this.matchAvailability.availabilities.filter(availability => availability.player.firstname == this.loggedPlayer)[0];
           }
@@ -247,10 +256,10 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
                   player: {
                     firstname: player.firstname,
                     lastname: player.lastname,
-                    role: result.data.role,
+                    role: playerRole,
                     email: player.email
                   },
-                  availabilityType: result.data.availability,
+                  availabilityType: playerAvailability,
                   trainingPresence: trainingPresence,
                   matchPresence: matchPresence,
                   pastAvailability: pastAvailability ? pastAvailability.pastMatchesAvailability : '',
@@ -282,8 +291,8 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
                 this.matchAvailabilityService.postMatchAvailability(this.selectedMatch.matchNum, player.firstname, {
                   matchNum: this.selectedMatch.matchNum,
                   name: player.firstname,
-                  availability: result.data.availability,
-                  role: result.data.role,
+                  availability: playerAvailability,
+                  role: playerRole,
                   selected: "Indeterminé",
                   trainingPresence: trainingPresence,
                   matchPresence: matchPresence
@@ -292,6 +301,23 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
             }, errmess => this.matchPresenceErrMess = <any>errmess);
           }, errmess => this.trainingPresenceErrMess = <any>errmess);
         }, errmess => this.matchErrMess = <any>errmess);
+  }
+
+  chooseAvailability() {
+    let existingAvailability = null;
+    if (this.matchAvailability) {
+      existingAvailability = this.matchAvailability.availabilities.filter(availability => availability.player.firstname == this.loggedPlayer)[0];
+    }
+    let dialogRef;
+    if (existingAvailability) {
+      dialogRef = this.dialog.open(AvailabilityComponent, {data: { currentAvailability: existingAvailability } });
+    } else {
+      dialogRef = this.dialog.open(AvailabilityComponent, {data: { currentAvailability: null } });
+    }
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.enterAvailability(this.loggedPlayer, result.data.role, result.data.availability)
       }
     });
   }
@@ -302,12 +328,12 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
       dialogRef = this.dialog.open(LoginComponent);
       dialogRef.afterClosed().subscribe(result => {
         if (result.success) {
-          this.enterAvailability();
+          this.chooseAvailability();
         }
       });
     }
     else {
-      this.enterAvailability();
+      this.chooseAvailability();
     }
   }
 
@@ -356,7 +382,7 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
     this.checkedCheckboxes[playerName] = checkboxState;
   }
 
-  validateTeam() {
+  onValidateTeamClick() {
     this.matchAvailability.availabilities.forEach(availability => availability.selection = this.checkedCheckboxes[availability.player.firstname] ? "Sélectionné" : "Non Sélectionné");
     this.matchAvailabilityService.postMatchAvailabilities(this.selectedMatch.matchNum, this.matchAvailability.availabilities.map(availability => {
       return {
@@ -370,6 +396,45 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
       }
     })).subscribe();
     this.sortData({active: "selection", direction: "desc"});
+  }
+
+  onSendReminderClick() {
+    this.playerService.getPlayers().subscribe(players => {
+      let emailsSummary = `<div class="text" style="padding: 0 3em; text-align: center;">
+                              <h2>Salut Cédric,</h2>
+                              <h3>Voici les rappels que tu as envoyé.</h3>
+                            </div>
+                            <hr>
+                            <hr>`;
+
+      let remainingPlayers = new Array<Player>();
+      players.filter(player => this.matchAvailability.availabilities.map(availability => availability.player.firstname).findIndex(name => player.firstname == name) === -1).forEach(player =>  {
+        remainingPlayers.push(player);
+        let email = new Email();
+        let emailContent = buildReminderEmail(player.firstname, this.selectedMatch.matchNum, this.selectedMatch.date, this.selectedMatch.hour, this.selectedMatch.place, 
+                                              this.selectedMatch.opponent, this.selectedMatch.opponentRank, this.selectedMatch.previousEncounter, this.configService.appURL);
+        emailsSummary += emailContent + '<hr>'
+        email = {
+          recipient: player.email,
+          subject: "[VOLLEY] Prochain match",
+          content: emailContent
+        };
+        
+        this.sendmailService.postSendmailOnePlayer(email).subscribe();
+      });
+
+      let summaryEmail = new Email();
+
+      summaryEmail = {
+        recipient: players.filter(player => player.firstname == "Cédric")[0].email,
+        subject: "[VOLLEY] Prochain match",
+        content: emailsSummary
+      }
+
+      this.sendmailService.postSendmailOnePlayer(summaryEmail).subscribe(result => {
+        this.dialog.open(ReminderConfirmationComponent, {data: {remainingPlayers: remainingPlayers}})
+      });
+    })
   }
 }
 

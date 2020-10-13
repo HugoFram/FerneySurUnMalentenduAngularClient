@@ -1,0 +1,17 @@
+<h1 mat-dialog-title>E-mail de Rappel</h1>
+
+<div>
+  <p>Rappel envoyé à :</p>
+  <ul>
+    <li *ngFor = "let player of playersWithAddress">{{ player.firstname }}</li>
+  </ul>
+  <p>Impossible d'envoyer le rappel (pas d'adresse e-mail renseignée) à :</p>
+  <ul>
+    <li *ngFor = "let player of playersWithoutAddress">{{ player.firstname }}</li>
+  </ul>
+</div>
+
+<mat-dialog-actions>
+  <span class = "flex-spacer"></span>
+  <button mat-raised-button mat-dialog-close color = "primary">OK</button>
+</mat-dialog-actions>

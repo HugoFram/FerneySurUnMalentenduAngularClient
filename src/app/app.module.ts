@@ -39,6 +39,7 @@ import { PresenceService } from './services/presence.service';
 import { RankService } from './services/rank.service';
 import { ProcessHTTPMsgService } from './services/process-httpmsg.service';
 import { ConfigService } from './services/config.service';
+import { SendmailService } from './services/sendmail.service';
 
 import { AppComponent } from './app.component';
 import { fromEventPattern } from 'rxjs';
@@ -60,6 +61,7 @@ import { DeleteTrainingComponent } from './modals/delete-training/delete-trainin
 import { AddMatchComponent } from './modals/add-match/add-match.component';
 import { DeleteMatchComponent } from './modals/delete-match/delete-match.component';
 import { PlayerComponent } from './modals/player/player.component';
+import { ReminderConfirmationComponent } from './modals/reminder-confirmation/reminder-confirmation.component';
 
 export function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>) {
   return (): Promise<boolean> => {
@@ -68,6 +70,7 @@ export function load(http: HttpClient, config: ConfigService): (() => Promise<bo
          .pipe(
            map((x: ConfigService) => {
              config.baseURL = x.baseURL;
+             config.appURL = x.appURL;
              console.log("Loaded baseURL from config file.");
              resolve(true);
            }),
@@ -77,6 +80,7 @@ export function load(http: HttpClient, config: ConfigService): (() => Promise<bo
                resolve(false);
              }
              config.baseURL = 'http://localhost:3002/';
+             config.baseURL = 'http://localhost:4200/';
              console.log("Could not load baseURL from config file.");
              resolve(true);
              return of({});
@@ -103,7 +107,8 @@ export function load(http: HttpClient, config: ConfigService): (() => Promise<bo
     DeleteTrainingComponent,
     AddMatchComponent,
     DeleteMatchComponent,
-    PlayerComponent
+    PlayerComponent,
+    ReminderConfirmationComponent
   ],
   imports: [
     BrowserModule,
@@ -143,6 +148,7 @@ export function load(http: HttpClient, config: ConfigService): (() => Promise<bo
     PresenceService,
     RankService,
     ProcessHTTPMsgService,
+    SendmailService,
     DatePipe,
     {provide: MAT_DATE_LOCALE, useValue: 'fr-FR'},
     {
@@ -163,7 +169,8 @@ export function load(http: HttpClient, config: ConfigService): (() => Promise<bo
     DeleteTrainingComponent,
     AddMatchComponent,
     DeleteMatchComponent,
-    PlayerComponent
+    PlayerComponent,
+    ReminderConfirmationComponent
   ]
 })
 export class AppModule { }

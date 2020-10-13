@@ -6,7 +6,7 @@
 
   <div fxLayout="row" fxLayout.sm="column" fxLayout.xs="column">
     <div fxFlex="30">
-      <mat-tab-group mat-align-tabs="start" (selectedTabChange)="onTabChange($event)" *ngIf = "nextMatches">
+      <mat-tab-group mat-align-tabs="start" (selectedTabChange)="onTabChange($event)" [(selectedIndex)] = "selectedTabIndex" *ngIf = "nextMatches">
         <mat-tab *ngFor = "let match of nextMatches" [label] = "match.date.toLocaleDateString('fr-FR', {month: 'long', day: 'numeric'})">
           <mat-card>
             <mat-card-header>
@@ -116,7 +116,13 @@
 
       <ng-container matColumnDef="playerRole">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Poste </th>
-        <td mat-cell *matCellDef="let element" (click) = 'onAvailabilityRowClick($event)'> {{element.player.role}} </td>
+        <td mat-cell *matCellDef="let element" (click) = 'onAvailabilityRowClick($event)'
+          [ngClass]="{
+            'role-grey': element.player.role === 'Au choix',
+            'role-blue': element.player.role === 'Central',
+            'role-green': element.player.role === 'Passe',
+            'role-orange': element.player.role === 'Attaque'
+          }"> {{element.player.role}} </td>
       </ng-container>
 
       <ng-container matColumnDef="trainingPresence">
@@ -162,6 +168,7 @@
   </div>
 
   <div fxFlex fxLayout = "row" fxLayoutAlign = "space-evenly" *ngIf = "availabilityTableData && loggedPlayer == 'Cédric'">
-    <button mat-raised-button (click) = "validateTeam()">Valider Equipe</button>
+    <button mat-raised-button (click) = "onValidateTeamClick()">Valider Equipe</button>
+    <button mat-raised-button (click) = "onSendReminderClick()">Envoyer Rappel</button>
   </div>
 </div>

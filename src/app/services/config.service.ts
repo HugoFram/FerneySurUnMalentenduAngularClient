@@ -5,5 +5,6 @@ import { Injectable } from '@angular/core';
 })
 export class ConfigService {
   baseURL: string;
+  appURL: string;
   constructor() { }
 }
