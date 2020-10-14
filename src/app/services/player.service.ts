@@ -3,7 +3,7 @@ import { Player } from '../shared/player';
 import { PLAYERS } from '../shared/players';
 import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map, catchError } from 'rxjs/operators';
 import { ProcessHTTPMsgService } from '../services/process-httpmsg.service';
 import { ConfigService } from './config.service';
@@ -25,6 +25,19 @@ export class PlayerService {
 
   getPlayer(firstname: string): Observable<Player> {
     return this.http.get<Player>(this.configService.baseURL + "players/" + firstname).pipe(catchError(this.processHttpMsgService.handleError));
+  }
+
+  postPlayer(firstname: string, player: Player): Observable<Player> {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    };
+    return this.http.post<Player>(this.configService.baseURL + "players/" + firstname, player, httpOptions).pipe(catchError(this.processHttpMsgService.handleError));
+  }
+
+  deletePlayer(firstname: string): Observable<Player> {
+    return this.http.delete<Player>(this.configService.baseURL + "players/" + firstname).pipe(catchError(this.processHttpMsgService.handleError));
   }
 
   setLoggedPlayer(player: string) {

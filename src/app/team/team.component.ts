@@ -62,6 +62,7 @@ export class TeamComponent implements OnInit {
             this.players.push(updatedPlayer);
           }
           this.sortData({active: "firstname", direction: "asc"});
+          this.playerService.postPlayer(result.data.firstname, updatedPlayer).subscribe();
         }
       }
     });
@@ -82,6 +83,7 @@ export class TeamComponent implements OnInit {
       this.players.splice(index, 1);
     }
     this.sortData({active: "firstname", direction: "asc"});
+    this.playerService.deletePlayer(playerName).subscribe();
   }
 }
 
