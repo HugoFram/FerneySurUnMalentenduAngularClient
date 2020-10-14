@@ -27,6 +27,10 @@
   
     <!-- Header and Row Declarations -->
     <tr mat-header-row *matHeaderRowDef="['firstname', 'lastname', 'role', 'email']"></tr>
-    <tr mat-row *matRowDef="let row; columns: ['firstname', 'lastname', 'role', 'email']" (click) = "openPlayerModal(row)" ></tr>
+    <tr mat-row *matRowDef="let row; columns: ['firstname', 'lastname', 'role', 'email']" (click) = "onPlayerClick(row)" ></tr>
   </table>
+
+  <div fxFlex fxLayout = "row" fxLayoutAlign = "space-evenly">
+    <button mat-raised-button (click) = "onAddPlayerClick()">Ajouter un Joueur</button>
+  </div>
 </div>

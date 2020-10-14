@@ -74,8 +74,12 @@ export class PlayerComponent implements OnInit {
     }
   }
 
+  onDeleteClick() {
+    this.dialogRef.close({data: this.playerForm.value, isDeleteClicked: true});
+  }
+
   onSubmit() {
-    this.dialogRef.close({data: this.playerForm.value});
+    this.dialogRef.close({data: this.playerForm.value, isDeleteClicked: false});
   }
 
 }

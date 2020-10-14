@@ -51,18 +51,38 @@ export class TeamComponent implements OnInit {
     const dialogRef = this.dialog.open(PlayerComponent, {data: {player: player}});
     dialogRef.afterClosed().subscribe(result => {
       if (result.data) {
-        let updatedPlayer = result.data;
-        let index = this.players.findIndex(member => member.firstname === player.firstname);
-        if (index != -1) {
-          this.players.splice(index, 1, updatedPlayer);
+        if (result.isDeleteClicked) {
+          this.removePlayer(result.data.firstname);
         } else {
-          this.players.push(updatedPlayer);
+          let updatedPlayer = result.data;
+          let index = this.players.findIndex(member => member.firstname === player.firstname);
+          if (index != -1) {
+            this.players.splice(index, 1, updatedPlayer);
+          } else {
+            this.players.push(updatedPlayer);
+          }
+          this.sortData({active: "firstname", direction: "asc"});
         }
-        this.sortData({active: "firstname", direction: "asc"});
       }
     });
   }
 
+  onPlayerClick(player: Player) {
+    this.openPlayerModal(player);
+  }
+
+  onAddPlayerClick() {
+    let player = new Player();
+    this.openPlayerModal(player);
+  }
+
+  removePlayer(playerName: string) {
+    let index = this.players.findIndex(member => member.firstname == playerName);
+    if (index != -1) {
+      this.players.splice(index, 1);
+    }
+    this.sortData({active: "firstname", direction: "asc"});
+  }
 }
 
 function compare(a, b, isAsc) {

@@ -1,0 +1,10 @@
+.mat-icon-button {
+    float: right;
+    top:-24px;
+    right:-24px;
+    outline: none;
+}
+
+.mat-icon-button ::ng-deep .mat-button-focus-overlay {
+    display: none;
+}
