@@ -62,7 +62,7 @@ export class TeamComponent implements OnInit {
             this.players.push(updatedPlayer);
           }
           this.sortData({active: "firstname", direction: "asc"});
-          this.playerService.postPlayer(result.data.firstname, updatedPlayer).subscribe();
+          this.playerService.postPlayer(player.firstname, updatedPlayer).subscribe();
         }
       }
     });
