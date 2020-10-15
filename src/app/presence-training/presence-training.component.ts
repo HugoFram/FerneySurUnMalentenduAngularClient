@@ -68,7 +68,7 @@ export class PresenceTrainingComponent implements OnInit {
         presence = {player: key, presenceTypes: Array<string>(numTrainings)};
         return presence;
       });
-      this.trainingPresences.labels = new Array<string>(); 
+      this.trainingPresences.labels = new Array<string>();
 
       presencesDB.forEach(presenceDB => {
         // Find index of the presence entry that corresponds to the player from the DB table entry
@@ -89,6 +89,8 @@ export class PresenceTrainingComponent implements OnInit {
         // Set the presence type for this player and this training
         this.trainingPresences.presences[indexPlayer].presenceTypes[indexTraining] = presenceDB.presence;
       });
+
+      this.trainingPresences.presences.sort((presenceA, presenceB) => presenceA.player.localeCompare(presenceB.player));
 
       this.playerService.getPlayers().subscribe(players => this.players = players);
     });
@@ -122,6 +124,8 @@ export class PresenceTrainingComponent implements OnInit {
             });
           });
         }
+
+        this.trainingPresences.presences.sort((presenceA, presenceB) => presenceA.player.localeCompare(presenceB.player));
 
         this.presenceService.postTrainingPresences(presencesDB, this.datePipe.transform(result.data.date, 'yyyy-MM-dd')).subscribe(result => {
           this.updateTrainingPresenceStatistics();
