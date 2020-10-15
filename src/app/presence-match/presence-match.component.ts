@@ -86,6 +86,8 @@ export class PresenceMatchComponent implements OnInit {
         this.matchPresences.presences[indexPlayer].presenceTypes[indexMatch] = presenceDB.presence;
       });
 
+      this.matchPresences.presences.sort((presenceA, presenceB) => presenceA.player.localeCompare(presenceB.player));
+
       this.playerService.getPlayers().subscribe(players => this.players = players);
     });
   }
@@ -141,6 +143,8 @@ export class PresenceMatchComponent implements OnInit {
             });
           }
         }
+
+        this.matchPresences.presences.sort((presenceA, presenceB) => presenceA.player.localeCompare(presenceB.player));
 
         this.presenceService.postMatchPresences(presencesDB, this.datePipe.transform(result.data.date, 'yyyy-MM-dd')).subscribe(result => {
           this.updateMatchPresenceStatistics();
