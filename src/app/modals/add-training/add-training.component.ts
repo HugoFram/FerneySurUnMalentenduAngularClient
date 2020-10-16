@@ -49,10 +49,7 @@ export class AddTrainingComponent implements OnInit {
       presenceList: new FormArray([])
     });
 
-    this.presences = this.trainingPresences.presences.map(presence => presence.player);
-    if (this.presences.length == 0) {
-      this.presences = this.data.players.map(player => player.firstname)
-    }
+    this.presences = this.data.players.map(player => player.firstname)
     
     this.addCheckboxes()
 
@@ -64,7 +61,7 @@ export class AddTrainingComponent implements OnInit {
   }
 
   private addCheckboxes() {
-    this.presences.forEach((o, i) => {
+    this.data.players.forEach((o, i) => {
       const control = new FormControl(false);
       (this.trainingForm.controls.presenceList as FormArray).push(control);
     });
@@ -75,10 +72,17 @@ export class AddTrainingComponent implements OnInit {
   onValueChanged(data?: any) {
     let label = data.toLocaleDateString();
     let index = this.data.currentPresence.labels.findIndex(lab => lab.slice(0, 10) === label);
-    let initialCheckboxStates = this.trainingPresences.presences.map(presence => false)
+    let initialCheckboxStates = this.data.players.map(player => false);
 
     if (index != -1) {
-      initialCheckboxStates = this.trainingPresences.presences.map(presence => presence.presenceTypes[index] === "Présent");
+      initialCheckboxStates = this.data.players.map(_player => {
+        let playerPresence = this.trainingPresences.presences.filter(presence => presence.player == _player.firstname)[0];
+        if (playerPresence) {
+          return playerPresence.presenceTypes[index] === "Présent";
+        } else {
+          return false;
+        }
+      });
     }
     this.trainingForm.controls.presenceList.patchValue(initialCheckboxStates);
   }

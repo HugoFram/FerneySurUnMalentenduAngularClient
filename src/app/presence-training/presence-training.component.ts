@@ -92,7 +92,9 @@ export class PresenceTrainingComponent implements OnInit {
 
       this.trainingPresences.presences.sort((presenceA, presenceB) => presenceA.player.localeCompare(presenceB.player));
 
-      this.playerService.getPlayers().subscribe(players => this.players = players);
+      this.playerService.getPlayers().subscribe(players => this.players = players.sort((playerA, playerB) => playerA.firstname.localeCompare(playerB.firstname)));
+
+      sortPresenceList(this.trainingPresences);
     });
   }
 
@@ -100,27 +102,50 @@ export class PresenceTrainingComponent implements OnInit {
     const dialogRef = this.dialog.open(AddTrainingComponent, {data: {currentPresence: this.trainingPresences, players: this.players}});
     dialogRef.afterClosed().subscribe(result => {
       if (result.data) {
+
+        // Add players that are not yet in the presence table
+        this.players.forEach(player => {
+          if (this.trainingPresences.presences.map(presence => presence.player).findIndex(presence => presence == player.firstname) == -1) {
+            this.trainingPresences.presences.push({
+              player: player.firstname,
+              presenceTypes: new Array<string>(this.trainingPresences.labels.length)
+            })
+          }
+        })
+
         let label = result.data.date.toLocaleDateString() + " (" + result.data.presenceList.reduce((acc, cur) => acc + cur, 0) + ")";
         let index = this.trainingPresences.labels.findIndex(lab => lab.slice(0, 10) === label.slice(0, 10));
         let presencesDB = new Array<PresenceTrainingDbFormat>();
         if (index != -1) {
           this.trainingPresences.labels.splice(index, 1, label);
           this.trainingPresences.presences.forEach((presence, i) => {
-            presence.presenceTypes.splice(index, 1, result.data.presenceList[i] ? "Présent" : "Absent");
+            let playerId = this.players.findIndex(player => player.firstname == presence.player);
+            if (playerId != -1) {
+              presence.presenceTypes.splice(index, 1, result.data.presenceList[playerId] ? "Présent" : "Absent");
+            } else {
+              presence.presenceTypes[index] = "";
+            }
             presencesDB.push({
               name: presence.player,
               date: this.datePipe.transform(result.data.date, 'yyyy-MM-dd'),
-              presence: result.data.presenceList[i] ? "Présent" : "Absent"
+              presence: presence.presenceTypes[index]
             });
           });
         } else {
           this.trainingPresences.labels.push(label);
           this.trainingPresences.presences.forEach((presence, i) => {
-            presence.presenceTypes.push(result.data.presenceList[i] ? "Présent" : "Absent");
+            let playerId = this.players.findIndex(player => player.firstname == presence.player);
+            let presenceType;
+            if (playerId != -1) {
+              presenceType = result.data.presenceList[playerId] ? "Présent" : "Absent";
+            } else {
+              presenceType = "";
+            }
+            presence.presenceTypes.push(presenceType);
             presencesDB.push({
               name: presence.player,
               date: this.datePipe.transform(result.data.date, 'yyyy-MM-dd'),
-              presence: result.data.presenceList[i] ? "Présent" : "Absent"
+              presence: presenceType
             });
           });
         }
@@ -130,6 +155,8 @@ export class PresenceTrainingComponent implements OnInit {
         this.presenceService.postTrainingPresences(presencesDB, this.datePipe.transform(result.data.date, 'yyyy-MM-dd')).subscribe(result => {
           this.updateTrainingPresenceStatistics();
         });
+
+        sortPresenceList(this.trainingPresences);
       }
     });
 
@@ -169,4 +196,20 @@ export class PresenceTrainingComponent implements OnInit {
     });
   }
 
+}
+
+function sortPresenceList(presenceList: PresenceList) {
+  let labelsCopy = new Array<string>();
+  presenceList.labels.forEach(label => labelsCopy.push(label));
+  presenceList.labels.sort((labelA, labelB) => (labelA.slice(6,10) + labelA.slice(3,5) + labelA.slice(0,2)).localeCompare(labelB.slice(6,10) + labelB.slice(3,5) + labelB.slice(0,2)));
+
+  let presenceTypes;
+  presenceList.presences.forEach(presence => {
+    presenceTypes = new Array<string>(labelsCopy.length);
+    presence.presenceTypes.forEach((presType, i) => {
+      let newIndex = presenceList.labels.findIndex(label => labelsCopy[i] == label);
+      presenceTypes[newIndex] = presType;
+    });
+    presence.presenceTypes = presenceTypes;
+  });
 }
