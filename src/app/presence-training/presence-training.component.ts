@@ -111,7 +111,7 @@ export class PresenceTrainingComponent implements OnInit {
               presenceTypes: new Array<string>(this.trainingPresences.labels.length)
             })
           }
-        })
+        });
 
         let label = result.data.date.toLocaleDateString() + " (" + result.data.presenceList.reduce((acc, cur) => acc + cur, 0) + ")";
         let index = this.trainingPresences.labels.findIndex(lab => lab.slice(0, 10) === label.slice(0, 10));

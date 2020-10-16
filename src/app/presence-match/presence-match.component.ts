@@ -88,7 +88,9 @@ export class PresenceMatchComponent implements OnInit {
 
       this.matchPresences.presences.sort((presenceA, presenceB) => presenceA.player.localeCompare(presenceB.player));
 
-      this.playerService.getPlayers().subscribe(players => this.players = players);
+      this.playerService.getPlayers().subscribe(players => this.players = players.sort((playerA, playerB) => playerA.firstname.localeCompare(playerB.firstname)));
+
+      sortPresenceList(this.matchPresences);
     });
   }
 
@@ -96,17 +98,32 @@ export class PresenceMatchComponent implements OnInit {
     const dialogRef = this.dialog.open(AddMatchComponent, {data: {currentPresence: this.matchPresences, players: this.players}});
     dialogRef.afterClosed().subscribe(result => {
       if (result.data) {
+        // Add players that are not yet in the presence table
+        this.players.forEach(player => {
+          if (this.matchPresences.presences.map(presence => presence.player).findIndex(presence => presence == player.firstname) == -1) {
+            this.matchPresences.presences.push({
+              player: player.firstname,
+              presenceTypes: new Array<string>(this.matchPresences.labels.length)
+            })
+          }
+        });
+
         let label = result.data.opponent + "<br>" + result.data.date.toLocaleDateString() + "<br>" + "(" + result.data.setsWon + "-" + result.data.setsLost + ")";
         let index = this.matchPresences.labels.findIndex(lab => lab === label);
         let presencesDB = new Array<PresenceMatchDbFormat>();
         if (index != -1) {
           this.matchPresences.labels.splice(index, 1, label);
           this.matchPresences.presences.forEach((presence, i) => {
-            presence.presenceTypes.splice(index, 1,result.data.presenceWithoutPlayingList[i] ? "Présent sans jouer" : (result.data.presenceList[i] ? "Présent" : "Absent"));
+            let playerId = this.players.findIndex(player => player.firstname == presence.player);
+            if (playerId != -1) {
+              presence.presenceTypes.splice(index, 1, result.data.presenceWithoutPlayingList[playerId] ? "Présent sans jouer" : (result.data.presenceList[playerId] ? "Présent" : "Absent"));
+            } else {
+              presence.presenceTypes[index] = "";
+            }
             presencesDB.push({
               name: presence.player,
               date: this.datePipe.transform(result.data.date, 'yyyy-MM-dd'),
-              presence: result.data.presenceWithoutPlayingList[i] ? "Présent sans jouer" : (result.data.presenceList[i] ? "Présent" : "Absent"),
+              presence: presence.presenceTypes[index],
               adversary: result.data.opponent,
               setsWon: result.data.setsWon,
               setsLost: result.data.setsLost
@@ -131,11 +148,18 @@ export class PresenceMatchComponent implements OnInit {
             })
           } else {
             this.matchPresences.presences.forEach((presence, i) => {
-              presence.presenceTypes.push(result.data.presenceWithoutPlayingList[i] ? "Présent sans jouer" : (result.data.presenceList[i] ? "Présent" : "Absent"));
+              let playerId = this.players.findIndex(player => player.firstname == presence.player);
+              let presenceType;
+              if (playerId != -1) {
+                presenceType = result.data.presenceWithoutPlayingList[playerId] ? "Présent sans jouer" : (result.data.presenceList[playerId] ? "Présent" : "Absent");
+              } else {
+                presenceType = "";
+              }
+              presence.presenceTypes.push(presenceType);
               presencesDB.push({
                 name: presence.player,
                 date: this.datePipe.transform(result.data.date, 'yyyy-MM-dd'),
-                presence: result.data.presenceWithoutPlayingList[i] ? "Présent sans jouer" : (result.data.presenceList[i] ? "Présent" : "Absent"),
+                presence: presenceType,
                 adversary: result.data.opponent,
                 setsWon: result.data.setsWon,
                 setsLost: result.data.setsLost
@@ -149,6 +173,8 @@ export class PresenceMatchComponent implements OnInit {
         this.presenceService.postMatchPresences(presencesDB, this.datePipe.transform(result.data.date, 'yyyy-MM-dd')).subscribe(result => {
           this.updateMatchPresenceStatistics();
         });
+
+        sortPresenceList(this.matchPresences);
       }
     });
 
@@ -189,4 +215,24 @@ export class PresenceMatchComponent implements OnInit {
     });
   }
 
+}
+
+function sortPresenceList(presenceList: PresenceList) {
+  let labelsCopy = new Array<string>();
+  presenceList.labels.forEach(label => labelsCopy.push(label));
+  presenceList.labels.sort((labelA, labelB) => {
+    let lengthA = labelA.length;
+    let lengthB = labelB.length;
+    return (labelA.slice(lengthA-13,lengthA-9) + labelA.slice(lengthA-16,lengthA-14) + labelA.slice(lengthA-19,lengthA-17)).localeCompare(labelB.slice(lengthB-13,lengthB-9) + labelB.slice(lengthB-16,lengthB-14) + labelB.slice(lengthB-19,lengthB-17))
+  });
+
+  let presenceTypes;
+  presenceList.presences.forEach(presence => {
+    presenceTypes = new Array<string>(labelsCopy.length);
+    presence.presenceTypes.forEach((presType, i) => {
+      let newIndex = presenceList.labels.findIndex(label => labelsCopy[i] == label);
+      presenceTypes[newIndex] = presType;
+    });
+    presence.presenceTypes = presenceTypes;
+  });
 }

@@ -77,10 +77,7 @@ export class AddMatchComponent implements OnInit {
       presenceWithoutPlayingList: new FormArray([])
     });
 
-    this.presences = this.matchPresences.presences.map(presence => presence.player);
-    if (this.presences.length == 0) {
-      this.presences = this.data.players.map(player => player.firstname)
-    }
+    this.presences = this.data.players.map(player => player.firstname)
 
     this.addPresenceCheckboxes();
     this.addPresenceWithoutPlayingCheckboxes();
@@ -99,14 +96,14 @@ export class AddMatchComponent implements OnInit {
   }
 
   private addPresenceCheckboxes() {
-    this.presences.forEach((o, i) => {
+    this.data.players.forEach((o, i) => {
       const control = new FormControl(false);
       (this.matchForm.controls.presenceList as FormArray).push(control);
     });
   }
 
   private addPresenceWithoutPlayingCheckboxes() {
-    this.presences.forEach((o, i) => {
+    this.data.players.forEach((o, i) => {
       const control = new FormControl(false);
       (this.matchForm.controls.presenceWithoutPlayingList as FormArray).push(control);
     });
@@ -117,15 +114,29 @@ export class AddMatchComponent implements OnInit {
   onDateChanged(data?: any) {
     let label = data.toLocaleDateString();
     let index = this.data.currentPresence.labels.findIndex(lab => lab.slice(lab.length - 19, lab.length - 9) === label);
-    let initialPresenceCheckboxStates = this.matchPresences.presences.map(presence => false);
-    let initialPresenceWithoutPlayingCheckboxStates = this.matchPresences.presences.map(presence => false);
+    let initialPresenceCheckboxStates = this.data.players.map(presence => false);
+    let initialPresenceWithoutPlayingCheckboxStates = this.data.players.map(presence => false);
     let initialOpponent = '';
     let initialSetsWon = '';
     let initialSetsLost = '';
 
     if (index != -1) {
-      initialPresenceCheckboxStates = this.matchPresences.presences.map(presence => presence.presenceTypes[index] === "Présent");
-      initialPresenceWithoutPlayingCheckboxStates = this.matchPresences.presences.map(presence => presence.presenceTypes[index] === "Présent sans jouer");
+      initialPresenceCheckboxStates = this.data.players.map(_player => {
+        let playerPresence = this.matchPresences.presences.filter(presence => presence.player == _player.firstname)[0];
+        if (playerPresence) {
+          return playerPresence.presenceTypes[index] === "Présent";
+        } else {
+          return false;
+        }
+      });
+      initialPresenceWithoutPlayingCheckboxStates = this.data.players.map(_player => {
+        let playerPresence = this.matchPresences.presences.filter(presence => presence.player == _player.firstname)[0];
+        if (playerPresence) {
+          return playerPresence.presenceTypes[index] === "Présent sans jouer";
+        } else {
+          return false;
+        }
+      });
       let lab = this.matchPresences.labels[index]
       initialOpponent = lab.slice(0, lab.length - 23);
       initialSetsWon = lab.slice(lab.length - 4, lab.length - 3);
