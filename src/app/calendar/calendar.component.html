@@ -54,7 +54,7 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns"
       [ngClass]="{
-        'is-next-match': row.date == this.nextMatchDate
+        'is-next-match': row.date.toLocaleDateString() == this.nextMatchDate.toLocaleDateString()
       }"></tr>
   </table>
 </div>
