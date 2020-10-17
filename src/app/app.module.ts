@@ -71,6 +71,7 @@ export function load(http: HttpClient, config: ConfigService): (() => Promise<bo
            map((x: ConfigService) => {
              config.baseURL = x.baseURL;
              config.appURL = x.appURL;
+             config.debugEmail = x.debugEmail;
              console.log("Loaded baseURL from config file.");
              resolve(true);
            }),
@@ -80,7 +81,8 @@ export function load(http: HttpClient, config: ConfigService): (() => Promise<bo
                resolve(false);
              }
              config.baseURL = 'http://localhost:3002/';
-             config.baseURL = 'http://localhost:4200/';
+             config.appURL = 'http://localhost:4200/';
+             config.debugEmail = "hugo@frammery.com";
              console.log("Could not load baseURL from config file.");
              resolve(true);
              return of({});

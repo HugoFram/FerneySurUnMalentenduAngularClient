@@ -18,7 +18,9 @@ import { PastMatchAvailability } from '../shared/pastMatchAvailability';
 import { Room } from '../shared/room';
 import { Player } from '../shared/player';
 import { Email } from '../shared/email';
-import { buildReminderEmail } from '../shared/reminderEmail';
+import { buildReminderEmail } from '../shared/email-builders/reminder';
+import { buildAvailabilityConfirmationEmail } from '../shared/email-builders/availability-confirmation';
+import { buildTeamValidationEmail } from '../shared/email-builders/team-validation';
 
 import { MapService } from '../services/map.service';
 import { MatchAvailabilityService } from '../services/match-availability.service';
@@ -180,7 +182,18 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
                       this.onTabChange({index: this.selectedTabIndex });
                     }
                     this.playerService.getPlayer(queryParams.playerName).subscribe(player => {
-                      this.enterAvailability(player.firstname, player.role, queryParams.available == "yes" ? "Disponible" : (queryParams.available == "maybe" ? "Disponible si besoin" : "Non disponible"));
+                      let availability = queryParams.available == "yes" ? "Disponible" : (queryParams.available == "maybe" ? "Disponible si besoin" : "Non disponible");
+                      this.enterAvailability(player.firstname, player.role, availability);
+
+                      let emailContent = buildAvailabilityConfirmationEmail(player.firstname, availability, this.nextMatches.filter(match => match.matchNum == queryParams.matchNum)[0].date, this.configService.appURL);
+                      let email = new Email();
+                      email = {
+                        recipient: this.configService.debugEmail,
+                        subject: "[AUTO] Next Match Availability (reminder)",
+                        content: emailContent
+                      };
+                      
+                      this.sendmailService.postSendmailOnePlayer(email).subscribe();
                     }, errmess => this.playerErrMess = <any>errmess);
                   }
                 }
@@ -330,7 +343,17 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.enterAvailability(this.loggedPlayer, result.data.role, result.data.availability)
+        this.enterAvailability(this.loggedPlayer, result.data.role, result.data.availability);
+
+        let emailContent = buildAvailabilityConfirmationEmail(this.loggedPlayer, result.data.availability, this.selectedMatch.date, this.configService.appURL);
+        let email = new Email();
+        email = {
+          recipient: this.configService.debugEmail,
+          subject: "[AUTO] Next Match Availability (application)",
+          content: emailContent
+        };
+        
+        this.sendmailService.postSendmailOnePlayer(email).subscribe();
       }
     });
   }
@@ -409,6 +432,18 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
       }
     })).subscribe();
     this.sortData({active: "selection", direction: "desc"});
+
+    let emailContent = buildTeamValidationEmail(this.selectedMatch.date, this.matchAvailability, this.configService.appURL);
+
+    let email = new Email();
+
+    email = {
+      recipient: this.configService.debugEmail,
+      subject: "[AUTO] Team Validation",
+      content: emailContent
+    }
+
+    this.sendmailService.postSendmailOnePlayer(email).subscribe();
   }
 
   onSendReminderClick() {
