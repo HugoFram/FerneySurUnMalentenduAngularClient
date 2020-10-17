@@ -70,11 +70,11 @@ export function load(http: HttpClient, config: ConfigService): (() => Promise<bo
          .pipe(
            map((x: ConfigService) => {
              config.baseURL = x.baseURL;
-             console.log("Loaded baseURL from config file.");
+             console.log("Loaded baseURL from config file. " + config.baseURL);
              config.appURL = x.appURL;
-             console.log("Loaded appURL from config file.");
+             console.log("Loaded appURL from config file. " + config.appURL);
              config.debugEmail = x.debugEmail;
-             console.log("Loaded debugEmail from config file.");
+             console.log("Loaded debugEmail from config file. " + config.debugEmail);
              resolve(true);
            }),
            catchError((x: { status: number }, caught: Observable<void>): ObservableInput<{}> => {
