@@ -173,6 +173,12 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
         
                   this.map = this.mapService.initMap(this.map, this.selectedRoom.latitude, this.selectedRoom.longitude, this.homeTeam);
 
+                  if (this.matchAvailability.availabilities.some(availability => availability.selection != "Indeterminé")) {
+                    this.sortData({active: "selection", direction: "desc"});
+                  } else {
+                    this.sortData({active: "availabilityType", direction: "asc"});
+                  }
+
                   // Deal with query parameters provided in case of availability provisioned by clicking on e-mail buttons
                   let queryParams;
                   this.route.queryParams.subscribe(params => queryParams = params);
@@ -194,6 +200,12 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
                       };
                       
                       this.sendmailService.postSendmailOnePlayer(email).subscribe();
+
+                      if (this.matchAvailability.availabilities.some(availability => availability.selection != "Indeterminé")) {
+                        this.sortData({active: "selection", direction: "desc"});
+                      } else {
+                        this.sortData({active: "availabilityType", direction: "asc"});
+                      }
                     }, errmess => this.playerErrMess = <any>errmess);
                   }
                 }
@@ -219,7 +231,11 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
       if (this.matchAvailability && this.matchAvailability.availabilities.length > 0) {
         this.availabilityTableData = this.matchAvailability.availabilities.slice();
         this.matchAvailability.availabilities.forEach(availability => this.checkedCheckboxes[availability.player.firstname] = availability.selection == "Sélectionné");
-        this.sortData({active: "availabilityType", direction: "asc"});
+        if (this.matchAvailability.availabilities.some(availability => availability.selection != "Indeterminé")) {
+          this.sortData({active: "selection", direction: "desc"});
+        } else {
+          this.sortData({active: "availabilityType", direction: "asc"});
+        }
       } else {
         this.availabilityTableData = null;
       }
@@ -312,7 +328,11 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
                   this.matchAvailabilities.push(this.matchAvailability);
                 }
                 this.availabilityTableData = this.matchAvailability.availabilities.slice();
-                this.sortData({active: "availabilityType", direction: "asc"});
+                if (this.matchAvailability.availabilities.some(availability => availability.selection != "Indeterminé")) {
+                  this.sortData({active: "selection", direction: "desc"});
+                } else {
+                  this.sortData({active: "availabilityType", direction: "asc"});
+                }
 
                 this.matchAvailabilityService.postMatchAvailability(this.selectedMatch.matchNum, player.firstname, {
                   matchNum: this.selectedMatch.matchNum,
@@ -471,6 +491,7 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
         this.sendmailService.postSendmailOnePlayer(email).subscribe();
       });
 
+      // Send reminder e-mail summary to coach
       let summaryEmail = new Email();
 
       summaryEmail = {
@@ -482,6 +503,18 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
       this.sendmailService.postSendmailOnePlayer(summaryEmail).subscribe(result => {
         this.dialog.open(ReminderConfirmationComponent, {data: {remainingPlayers: remainingPlayers}})
       });
+
+      // Send reminder e-mail summary to debug e-mail address
+      let summaryEmailDebug = new Email();
+
+      summaryEmailDebug = {
+        recipient: this.configService.debugEmail,
+        subject: "[AUTO] Reminder E-mail sent",
+        content: emailsSummary
+      }
+
+      summaryEmailDebug.recipient = this.configService.debugEmail;
+      this.sendmailService.postSendmailOnePlayer(summaryEmailDebug).subscribe();
     })
   }
 }
