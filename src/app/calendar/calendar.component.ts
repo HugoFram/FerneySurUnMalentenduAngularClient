@@ -29,7 +29,6 @@ export class CalendarComponent implements OnInit {
     this.matchService.getMatches().subscribe(matches => {
       this.matchService.getMatchSheets().subscribe(sheets => {
         this.matchSheets = sheets;
-        console.log(this.matchSheets);
         
         this.calendar = matches.map(match => {
           match.date = new Date(match.date);
