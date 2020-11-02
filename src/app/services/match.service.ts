@@ -21,4 +21,12 @@ export class MatchService {
   getMatch(id: string): Match {
     return MATCHES.filter(match => match.id === id)[0];
   }
+
+  getMatchSheets(): Observable<string[]> {
+    return this.http.get<string[]>(this.configService.baseURL + "sheets").pipe(catchError(this.processHttpMsgService.handleError));
+  }
+
+  getMatchSheet(id: string): Observable<any> {
+    return this.http.get(this.configService.baseURL + "sheets/" + id, { responseType: 'blob'}).pipe(catchError(this.processHttpMsgService.handleError));
+  }
 }
