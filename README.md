@@ -25,3 +25,20 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+
+# Operations
+
+## Environment variables 
+
+Environment variables such as the baseURL to which the requests are sent are stored in a config.json file manually updated directly in the deployed folder.
+
+## Restart server
+
+To restart the Apache 2 server, run `service apache2 restart`. 
+
+## Deploy code
+
+To deploy the code on either the Test or Production environments, run the below commands replacing <ENV> by Test or Production.
+Note that this only works in the Raspberry PI on which to deploy the code is in the local network. If it's not the case, use 217.162.196.67 IP instead.
+`npm run build --prod`
+`scp -r C:/Users/Hugo/Documents/FerneySurUnMalentendu/dist/FerneySurUnMalentendu/* pi@192.168.0.157:/var/www/html/FerneySurUnMalentendu/<ENV>/`
