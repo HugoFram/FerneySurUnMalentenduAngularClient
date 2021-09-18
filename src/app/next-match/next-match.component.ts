@@ -130,7 +130,7 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
                   let nextMatch: NextMatch;
                   let isHome = match.home == "Ferney sur un malentendu";
                   let opponent = isHome ? match.visitor : match.home;
-                  let opponentRank = ranks.filter(rank => rank.team == opponent)[0].rank;
+                  let opponentRank = ranks.length > 0 ? ranks.filter(rank => rank.team == opponent)[0].rank : 0;
                   let previousEncounter = this.matches.filter(_match => _match.date < new Date() && _match.sets != "-" && ((_match.home == "Ferney sur un malentendu" && _match.visitor == opponent) || (_match.visitor == "Ferney sur un malentendu" && _match.home == opponent)))[0];
                   let ourSetsPreviousEncounter, previousEncounterResult;
                   if (previousEncounter) {
