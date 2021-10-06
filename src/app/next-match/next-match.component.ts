@@ -90,7 +90,7 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
               if (player) {
                 let pastAv: string;
                 if (pastAvailabilities.length > 0) {
-                  pastAv = pastAvailabilities.filter(pastAv => pastAv.name == player.firstname)[0].pastMatchesAvailability;
+                  pastAv = pastAvailabilities.filter(pastAv => pastAv.name == player.firstname).length > 0 ? pastAvailabilities.filter(pastAv => pastAv.name == player.firstname)[0].pastMatchesAvailability : '';
                 } else {
                   pastAv = ''
                 }
