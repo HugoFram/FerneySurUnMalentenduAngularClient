@@ -10,7 +10,7 @@
       <input matInput (keyup)="applyFilter($event)" placeholder="Rechercher" #input>
     </mat-form-field>
   </div>
-  <table mat-table matSort class="mat-elevation-z8" [dataSource] = "resultsTableData">
+  <table mat-table matSort class="mat-elevation-z8" [dataSource] = "resultsTableData" matSortActive="date" matSortDirection="asc" matSortDisableClear>
 
     <ng-container matColumnDef="date">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Date </th>

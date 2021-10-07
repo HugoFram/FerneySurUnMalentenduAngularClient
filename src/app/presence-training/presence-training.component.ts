@@ -73,11 +73,11 @@ export class PresenceTrainingComponent implements OnInit {
       presencesDB.forEach(presenceDB => {
         // Find index of the presence entry that corresponds to the player from the DB table entry
         let indexPlayer = this.trainingPresences.presences.findIndex(presence => presence.player == presenceDB.name);
-        let indexTraining = this.trainingPresences.labels.findIndex(label => label.includes(new Date(presenceDB.date).toLocaleDateString()));
+        let indexTraining = this.trainingPresences.labels.findIndex(label => label.includes(new Date(presenceDB.date).toLocaleDateString("fr-FR")));
         if (indexTraining == -1) {
         // If the training is not loaded yet
           // Create a label for the training and add it to the list of training labels
-          this.trainingPresences.labels.push(new Date(presenceDB.date).toLocaleDateString() + " (" + (presenceDB.presence == "Présent" ? "1" : "0") + ")");
+          this.trainingPresences.labels.push(new Date(presenceDB.date).toLocaleDateString("fr-FR") + " (" + (presenceDB.presence == "Présent" ? "1" : "0") + ")");
 
           // The index of the training is the number of training already loaded (0-based indexing)
           indexTraining = this.trainingPresences.labels.length - 1;
