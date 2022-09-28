@@ -99,7 +99,8 @@
       <tr mat-row *matRowDef="let row; columns: ['playerName', 'availabilityType', 'playerRole', 'trainingPresence', 'matchPresence', 'selection']"
         [ngClass]="{
           'is-selected': row.selection === 'Sélectionné',
-          'is-not-selected': row.selection === 'Non Sélectionné'
+          'is-not-selected': row.selection === 'Non Sélectionné',
+          'is-unavailable': row.availabilityType === 'Non disponible' && row.selection === 'Indeterminé'
         }"></tr>
     </table>
     <table mat-table matSort class="mat-elevation-z8" [dataSource] = "availabilityTableData" (matSortChange)="sortData($event)" *ngIf = "availabilityTableData && loggedPlayer == 'Cédric'">
@@ -118,10 +119,10 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Poste </th>
         <td mat-cell *matCellDef="let element" (click) = 'onAvailabilityRowClick($event)'
           [ngClass]="{
-            'role-grey': element.player.role === 'Au choix',
-            'role-blue': element.player.role === 'Central',
-            'role-green': element.player.role === 'Passe',
-            'role-orange': element.player.role === 'Attaque'
+            'role-grey': element.player.role === 'Au choix' && element.availabilityType !== 'Non disponible',
+            'role-blue': element.player.role === 'Central' && element.availabilityType !== 'Non disponible',
+            'role-green': element.player.role === 'Passe' && element.availabilityType !== 'Non disponible',
+            'role-orange': element.player.role === 'Attaque' && element.availabilityType !== 'Non disponible'
           }"> {{element.player.role}} </td>
       </ng-container>
 
@@ -162,7 +163,8 @@
       <tr mat-row *matRowDef="let row; columns: ['playerName', 'availabilityType', 'playerRole', 'trainingPresence', 'matchPresence', 'pastMatchAvailability', 'selection', 'decision']"
         [ngClass]="{
           'is-selected': row.selection === 'Sélectionné',
-          'is-not-selected': row.selection === 'Non Sélectionné'
+          'is-not-selected': row.selection === 'Non Sélectionné',
+          'is-unavailable': row.availabilityType === 'Non disponible' && row.selection === 'Indeterminé'
         }"></tr>
     </table>
   </div>
