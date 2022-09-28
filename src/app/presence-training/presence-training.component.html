@@ -8,16 +8,16 @@
     <thead>
       <tr>
         <th></th>
-        <th *ngFor = "let header of trainingPresences.labels">{{header}}</th>
+        <th *ngFor = "let player of players">{{player.firstname}}</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor = "let player of trainingPresences.presences">
-        <td class = "table-player-col">{{player.player}}</td>
-        <td *ngFor = "let presence of player.presenceTypes" [ngClass]="{
-          'is-present': presence === 'Présent',
-          'is-absent': presence === 'Absent'
-        }">{{presence}}</td>
+      <tr *ngFor = "let training of trainingPresences.trainings">
+        <td class = "table-label-col">{{training.label}}</td>
+        <td *ngFor = "let player of players" class = "table-player-col" [ngClass]="{
+          'is-present': training.presences[player.firstname] && training.presences[player.firstname].presenceType === 'Présent',
+          'is-absent': training.presences[player.firstname] && training.presences[player.firstname].presenceType === 'Absent'
+        }">{{training.presences[player.firstname] && training.presences[player.firstname].presenceType}}</td>
       </tr>
     </tbody>
   </table>

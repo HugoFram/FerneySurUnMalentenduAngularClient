@@ -9,6 +9,7 @@ import { DeleteTrainingComponent } from '../modals/delete-training/delete-traini
 import { PresenceList } from '../shared/presenceList';
 import { Presence } from '../shared/presence';
 import { PresenceTrainingDbFormat } from '../shared/presenceTrainingDbFormat';
+import { PresenceTrainingsFormat } from '../shared/presenceTrainingsFormat';
 import { Player } from '../shared/player';
 import { PresenceService } from '../services/presence.service';
 import { PlayerService } from '../services/player.service';
@@ -46,55 +47,15 @@ export class PickDateAdapter extends NativeDateAdapter {
 })
 export class PresenceTrainingComponent implements OnInit {
 
-  trainingPresences: PresenceList;
+  trainingPresences: PresenceTrainingsFormat;
   players: Player[];
 
   constructor(private presenceService: PresenceService, private playerService: PlayerService, private matchAvailabilityService: MatchAvailabilityService, private dialog: MatDialog, private datePipe: DatePipe) { }
 
   ngOnInit() {
-    this.presenceService.getTrainingPresences().subscribe(presencesDB => {
-      this.trainingPresences = new PresenceList();
-      // Count number of distinct dates (= num trainings) in the DB table
-      let numTrainings = Object.keys(presencesDB.reduce((acc, presenceDB) => {
-        acc[presenceDB.date] = acc[presenceDB.date] ? acc[presenceDB.date] + 1 : 1;
-        return acc;
-      }, Object.create(null))).length; 
-      // Create a presence entry (= player + list of presenceTypes) for each player from the DB table
-      this.trainingPresences.presences = Object.keys(presencesDB.reduce((acc, presenceDB) => {
-        acc[presenceDB.name] = acc[presenceDB.name] ? acc[presenceDB.name] + 1 : 1;
-        return acc;
-      }, Object.create(null))).map(key => {
-        let presence = new Presence();
-        presence = {player: key, presenceTypes: Array<string>(numTrainings)};
-        return presence;
-      });
-      this.trainingPresences.labels = new Array<string>();
-
-      presencesDB.forEach(presenceDB => {
-        // Find index of the presence entry that corresponds to the player from the DB table entry
-        let indexPlayer = this.trainingPresences.presences.findIndex(presence => presence.player == presenceDB.name);
-        let indexTraining = this.trainingPresences.labels.findIndex(label => label.includes(new Date(presenceDB.date).toLocaleDateString("fr-FR")));
-        if (indexTraining == -1) {
-        // If the training is not loaded yet
-          // Create a label for the training and add it to the list of training labels
-          this.trainingPresences.labels.push(new Date(presenceDB.date).toLocaleDateString("fr-FR") + " (" + (presenceDB.presence == "Présent" ? "1" : "0") + ")");
-
-          // The index of the training is the number of training already loaded (0-based indexing)
-          indexTraining = this.trainingPresences.labels.length - 1;
-        } else {
-          let numPresent = Number(this.trainingPresences.labels[indexTraining].match(/[(]([0-9]+)[)]/)[1]) + (presenceDB.presence == "Présent" ? 1 : 0);
-          this.trainingPresences.labels[indexTraining] = this.trainingPresences.labels[indexTraining].slice(0, 10) + " (" + numPresent + ")";
-        }
-
-        // Set the presence type for this player and this training
-        this.trainingPresences.presences[indexPlayer].presenceTypes[indexTraining] = presenceDB.presence;
-      });
-
-      this.trainingPresences.presences.sort((presenceA, presenceB) => presenceA.player.localeCompare(presenceB.player));
-
+    this.presenceService.getTrainingPresences().subscribe(presences => {
+      this.trainingPresences = presences;
       this.playerService.getPlayers().subscribe(players => this.players = players.sort((playerA, playerB) => playerA.firstname.localeCompare(playerB.firstname)));
-
-      sortPresenceList(this.trainingPresences);
     });
   }
 
@@ -103,74 +64,60 @@ export class PresenceTrainingComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result.data) {
 
+        let label = result.data.date.toLocaleDateString() + " (" + result.data.presenceList.reduce((acc, cur) => acc + cur, 0) + ")";
+        let index = this.trainingPresences.trainings.findIndex(training => training.label.slice(0, 10) === label.slice(0, 10));
+        let presencesDB = new Array<PresenceTrainingDbFormat>();
+
+        let numPresent = result.data.presenceList.reduce((acc, cur) => acc + cur, 0);
+        let presences = {}
+
         // Add players that are not yet in the presence table
-        this.players.forEach(player => {
-          if (this.trainingPresences.presences.map(presence => presence.player).findIndex(presence => presence == player.firstname) == -1) {
-            this.trainingPresences.presences.push({
-              player: player.firstname,
-              presenceTypes: new Array<string>(this.trainingPresences.labels.length)
-            })
+        this.players.forEach((player, playerId) => {
+          if (this.trainingPresences.players.indexOf(player.firstname) == -1) {
+            this.trainingPresences.players.push(player.firstname)
           }
+          let presenceType = result.data.presenceList[playerId] ? "Présent" : "Absent"
+          presences[player.firstname] = {
+            name: player.firstname,
+            presenceType: presenceType
+          }
+          presencesDB.push({
+            name: player.firstname,
+            date: this.datePipe.transform(result.data.date, 'yyyy-MM-dd'),
+            presence: presenceType
+          });
         });
 
-        let label = result.data.date.toLocaleDateString() + " (" + result.data.presenceList.reduce((acc, cur) => acc + cur, 0) + ")";
-        let index = this.trainingPresences.labels.findIndex(lab => lab.slice(0, 10) === label.slice(0, 10));
-        let presencesDB = new Array<PresenceTrainingDbFormat>();
-        if (index != -1) {
-          this.trainingPresences.labels.splice(index, 1, label);
-          this.trainingPresences.presences.forEach((presence, i) => {
-            let playerId = this.players.findIndex(player => player.firstname == presence.player);
-            if (playerId != -1) {
-              presence.presenceTypes.splice(index, 1, result.data.presenceList[playerId] ? "Présent" : "Absent");
-            } else {
-              presence.presenceTypes[index] = "";
-            }
-            presencesDB.push({
-              name: presence.player,
-              date: this.datePipe.transform(result.data.date, 'yyyy-MM-dd'),
-              presence: presence.presenceTypes[index]
-            });
-          });
-        } else {
-          this.trainingPresences.labels.push(label);
-          this.trainingPresences.presences.forEach((presence, i) => {
-            let playerId = this.players.findIndex(player => player.firstname == presence.player);
-            let presenceType;
-            if (playerId != -1) {
-              presenceType = result.data.presenceList[playerId] ? "Présent" : "Absent";
-            } else {
-              presenceType = "";
-            }
-            presence.presenceTypes.push(presenceType);
-            presencesDB.push({
-              name: presence.player,
-              date: this.datePipe.transform(result.data.date, 'yyyy-MM-dd'),
-              presence: presenceType
-            });
-          });
+        let newTraining = {
+          date: this.datePipe.transform(result.data.date, 'yyyy-MM-dd'),
+          label: result.data.date.toLocaleDateString() + " (" + numPresent + ")",
+          presences: presences
         }
 
-        this.trainingPresences.presences.sort((presenceA, presenceB) => presenceA.player.localeCompare(presenceB.player));
+        if (index != -1) {
+          this.trainingPresences.trainings.splice(index, 1, newTraining);
+        } else {
+          this.trainingPresences.trainings.push(newTraining);
+        }
+
+        this.trainingPresences.trainings.sort((trainingA, trainingB) => trainingA.date > trainingB.date ? 1 : -1);
 
         this.presenceService.postTrainingPresences(presencesDB, this.datePipe.transform(result.data.date, 'yyyy-MM-dd')).subscribe(result => {
           this.updateTrainingPresenceStatistics();
         });
-
-        sortPresenceList(this.trainingPresences);
       }
     });
 
   }
 
   openDeleteTrainingModal() {
-    const dialogRef = this.dialog.open(DeleteTrainingComponent, {data: {existingTrainings: this.trainingPresences.labels}});
+    const dialogRef = this.dialog.open(DeleteTrainingComponent, {data: {existingTrainings: this.trainingPresences.trainings}});
     dialogRef.afterClosed().subscribe(result => {
       if (result.data !== null) {
         let index = result.data;
-        let trainingDate = moment(this.trainingPresences.labels[index].slice(0, 10), "DD/MM/YYYY").format("YYYY-MM-DD");
+        let trainingDate = moment(this.trainingPresences.trainings[index].label.slice(0, 10), "DD/MM/YYYY").format("YYYY-MM-DD");
         this.presenceService.deleteTrainingPresences(trainingDate).subscribe();
-        this.trainingPresences.labels.splice(index, 1);
-        this.trainingPresences.presences.forEach(presence => presence.presenceTypes.splice(index, 1));
+        this.trainingPresences.trainings.splice(index, 1);
 
         this.updateTrainingPresenceStatistics();
       }
@@ -181,11 +128,10 @@ export class PresenceTrainingComponent implements OnInit {
     // Load all match availabilities to update match presence statistics
     this.matchAvailabilityService.getMatchAvailabilities().subscribe(availabilities => {
       // Load all training presences to compute training presence statistics
-      this.presenceService.getTrainingPresences().subscribe(trainingPresencesDB => {
+      this.presenceService.getTrainingPresences().subscribe(trainingPresences => {
         availabilities.forEach(availability => {
-          let numTrainings = trainingPresencesDB.filter(presence => presence.name == availability.name).length;
-          let numPresence = trainingPresencesDB.filter(presence => presence.name == availability.name)
-                                               .map(presence => presence.presence == "Présent" ? 1 : 0).reduce((acc, val) => acc += val, 0);
+          let numTrainings = trainingPresences.trainings.length;
+          let numPresence = trainingPresences.trainings.filter(training => availability.name in training.presences && training.presences[availability.name].presenceType === "Présent").length;
           availability.trainingPresence = Math.round(100.0*numPresence / numTrainings) + " % (" + numPresence + "/" + numTrainings + ")";
         });
         let matchNums = availabilities.filter(
@@ -196,20 +142,4 @@ export class PresenceTrainingComponent implements OnInit {
     });
   }
 
-}
-
-function sortPresenceList(presenceList: PresenceList) {
-  let labelsCopy = new Array<string>();
-  presenceList.labels.forEach(label => labelsCopy.push(label));
-  presenceList.labels.sort((labelA, labelB) => (labelA.slice(6,10) + labelA.slice(3,5) + labelA.slice(0,2)).localeCompare(labelB.slice(6,10) + labelB.slice(3,5) + labelB.slice(0,2)));
-
-  let presenceTypes;
-  presenceList.presences.forEach(presence => {
-    presenceTypes = new Array<string>(labelsCopy.length);
-    presence.presenceTypes.forEach((presType, i) => {
-      let newIndex = presenceList.labels.findIndex(label => labelsCopy[i] == label);
-      presenceTypes[newIndex] = presType;
-    });
-    presence.presenceTypes = presenceTypes;
-  });
 }

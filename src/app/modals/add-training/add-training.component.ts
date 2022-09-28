@@ -5,7 +5,7 @@ import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@ang
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { DateAdapter, NativeDateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { formatDate } from '@angular/common';
-import { PresenceList } from '../../shared/presenceList';
+import { PresenceTrainingsFormat } from '../../shared/presenceTrainingsFormat';
 
 export class PickDateAdapter extends NativeDateAdapter {
   format(date: Date, displayFormat: Object): string {
@@ -38,7 +38,7 @@ export class PickDateAdapter extends NativeDateAdapter {
 })
 export class AddTrainingComponent implements OnInit {
 
-  trainingPresences: PresenceList;
+  trainingPresences: PresenceTrainingsFormat;
   trainingForm: FormGroup;
   presences: string[];
 
@@ -71,14 +71,13 @@ export class AddTrainingComponent implements OnInit {
 
   onValueChanged(data?: any) {
     let label = data.toLocaleDateString();
-    let index = this.data.currentPresence.labels.findIndex(lab => lab.slice(0, 10) === label);
+    let index = this.data.currentPresence.trainings.findIndex(training => training.label.slice(0, 10) === label);
     let initialCheckboxStates = this.data.players.map(player => false);
 
     if (index != -1) {
       initialCheckboxStates = this.data.players.map(_player => {
-        let playerPresence = this.trainingPresences.presences.filter(presence => presence.player == _player.firstname)[0];
-        if (playerPresence) {
-          return playerPresence.presenceTypes[index] === "Présent";
+        if (_player.firstname in this.trainingPresences.trainings[index].presences) {
+          return this.trainingPresences.trainings[index].presences[_player.firstname].presenceType === "Présent";
         } else {
           return false;
         }

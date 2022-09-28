@@ -14,7 +14,7 @@ export class DeleteTrainingComponent implements OnInit {
   trainings: string[];
 
   constructor(public dialogRef: MatDialogRef<DeleteTrainingComponent>, private formBuilder: FormBuilder, @Optional() @Inject(MAT_DIALOG_DATA) public data: any) {
-    this.trainings = this.data.existingTrainings
+    this.trainings = this.data.existingTrainings.map(training => training.label);
     this.deleteForm = this.formBuilder.group({
       training: this.trainings.length - 1
     });

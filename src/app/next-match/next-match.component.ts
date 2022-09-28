@@ -282,7 +282,7 @@ export class NextMatchComponent implements OnInit, AfterViewInit {
           }
           
           // Compute Training Presence string
-          this.presenceService.getTrainingPresences().subscribe(presences => {
+          this.presenceService.getTrainingPresencesDB().subscribe(presences => {
             let numTrainings = presences.filter(presence => presence.name == player.firstname).length;
             let numPresence = presences.filter(presence => presence.name == player.firstname).map(presence => presence.presence == "Présent" ? 1 : 0).reduce((acc, val) => acc += val, 0);
             let trainingPresence = Math.round(100.0*numPresence / numTrainings) + " % (" + numPresence + "/" + numTrainings + ")";

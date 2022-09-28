@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { PresenceList } from '../shared/presenceList';
 import { PresenceTrainingDbFormat } from '../shared/presenceTrainingDbFormat';
+import { PresenceTrainingsFormat } from '../shared/presenceTrainingsFormat';
 import { PresenceMatchDbFormat } from '../shared/presenceMatchDbFormat';
 import { TRAINING_PRESENCE } from '../shared/trainingPresences';
 import { MATCH_PRESENCE } from '../shared/matchPresences';
@@ -17,7 +18,11 @@ export class PresenceService {
 
   constructor(private http: HttpClient, private processHttpMsgService: ProcessHTTPMsgService, private configService: ConfigService) { }
 
-  getTrainingPresences(): Observable<PresenceTrainingDbFormat[]> {
+  getTrainingPresences(): Observable<PresenceTrainingsFormat> {
+    return this.http.get<PresenceTrainingsFormat>(this.configService.baseURL + "training-presences").pipe(catchError(this.processHttpMsgService.handleError));
+  }
+
+  getTrainingPresencesDB(): Observable<PresenceTrainingDbFormat[]> {
     return this.http.get<PresenceTrainingDbFormat[]>(this.configService.baseURL + "training-presences").pipe(catchError(this.processHttpMsgService.handleError));
   }
 
