@@ -39,6 +39,6 @@ To restart the Apache 2 server, run `service apache2 restart`.
 ## Deploy code
 
 To deploy the code on either the Test or Production environments, run the below commands replacing <ENV> by Test or Production.
-Note that this only works in the Raspberry PI on which to deploy the code is in the local network. If it's not the case, use 217.162.196.67 IP instead.
+Note that this only works in the Raspberry PI on which to deploy the code is in the local network. If it's not the case, use 217.162.33.233 IP instead.
 `npm run build --prod`
 `scp -r C:/Users/Hugo/Documents/FerneySurUnMalentendu/dist/FerneySurUnMalentendu/* pi@192.168.0.157:/var/www/html/FerneySurUnMalentendu/<ENV>/`
