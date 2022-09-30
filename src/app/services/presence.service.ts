@@ -22,10 +22,6 @@ export class PresenceService {
     return this.http.get<PresenceTrainingsFormat>(this.configService.baseURL + "training-presences").pipe(catchError(this.processHttpMsgService.handleError));
   }
 
-  getTrainingPresencesDB(): Observable<PresenceTrainingDbFormat[]> {
-    return this.http.get<PresenceTrainingDbFormat[]>(this.configService.baseURL + "training-presences").pipe(catchError(this.processHttpMsgService.handleError));
-  }
-
   postTrainingPresences(presences: PresenceTrainingDbFormat[], trainingDate: string): Observable<PresenceTrainingDbFormat[]> {
     const httpOptions = {
       headers: new HttpHeaders({
